@@ -68,18 +68,15 @@ class JacobianOperator : public Epetra_Operator
     // Destructor.
     ~JacobianOperator();
 
-    // Get the fully formed operator to build preconditioners.
-    Teuchos::RCP<Epetra_CrsMatrix> getCrsMatrix() const;
-
     //@{
     //! Epetra_Operator interface.
     // Set to false for not supporting the transpose.
     int SetUseTranspose(bool UseTranspose) { return 0; }
 
-    // Apply operator.
+    // Jacobian-free Apply operation.
     int Apply( const Epetra_MultiVector& X, Epetra_MultiVector& Y ) const;
 
-    // Inverse apply operator.
+    // Inverse apply operation.
     int ApplyInverse( const Epetra_MultiVector& X, Epetra_MultiVector& Y ) const;
     { return 0; }
 
@@ -108,6 +105,9 @@ class JacobianOperator : public Epetra_Operator
     // operator.
     const Epetra_Map & OperatorRangeMap() const { return d_u->Map(); }
     //@}
+
+    // Get the fully formed operator to build preconditioners.
+    Teuchos::RCP<Epetra_CrsMatrix> getCrsMatrix() const;
 
   private:
     
