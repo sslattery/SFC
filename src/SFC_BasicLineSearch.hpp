@@ -56,7 +56,7 @@ namespace SFC
  * \brief Basic line search method for globalization.
  */
 //---------------------------------------------------------------------------//
-class BasicLineSearch
+class BasicLineSearch : public Globalization
 {
   public:
 
@@ -73,8 +73,9 @@ class BasicLineSearch
 
     //! Given a Newton update, apply the linesearch technique and compute a
     //! new update.
-    void calculateUpdate( const Teuchos::RCP<Epetra_Vector>& newton_update,
-                          Teuchos::RCP<Epetra_Vector>& global_update );
+    void calculateUpdate( 
+        const Teuchos::RCP<const Epetra_Vector>& newton_update,
+        Teuchos::RCP<Epetra_Vector>& global_update );
 
   private:
 

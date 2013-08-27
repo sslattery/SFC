@@ -73,7 +73,7 @@ class Globalization
     //! Given a Newton update, apply the globalization technique and compute a
     //! new update.
     virtual void calculateUpdate( 
-        const Teuchos::RCP<Epetra_Vector>& newton_update,
+        const Teuchos::RCP<const Epetra_Vector>& newton_update,
         Teuchos::RCP<Epetra_Vector>& global_update ) = 0;
 };
 

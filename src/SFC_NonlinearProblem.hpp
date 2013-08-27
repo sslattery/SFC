@@ -86,11 +86,11 @@ class NonlinearProblem
     // Nonlinear model evaluator.
     Teuchos::RCP<ModelEvaluator> d_me;
 
-    // Nonlinear residual.
-    Teuchos::RCP<Epetra_Vector> d_F;
-
     // Nonlinear solution.
     Teuchos::RCP<Epetra_Vector> d_u;
+
+    // Nonlinear residual.
+    Teuchos::RCP<Epetra_Vector> d_F;
 };
 
 //---------------------------------------------------------------------------//

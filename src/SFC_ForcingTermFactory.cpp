@@ -63,7 +63,7 @@ ForcingTermFactory::create( const Teuchos::ParameterList& parameters )
     std::string name = "Constant";
     if ( parameters.isParameter("Forcing Term Type") )
     {
-        name = parameters.get( "Forcing Term Type" );
+        name = parameters.get<std::string>( "Forcing Term Type" );
     }
 
     Teuchos::RCP<ForcingTerm> forcing_term;
@@ -73,12 +73,12 @@ ForcingTermFactory::create( const Teuchos::ParameterList& parameters )
 
     switch( id->second )
     {
-        case CONSTANT
-            forcing_term = Teuchos::rcp( new ConstantForcingTerm() );
-            break
+        case CONSTANT:
+            forcing_term = Teuchos::rcp( new ConstantForcingTerm(parameters) );
+        break;
 
         default:
-            forcing_term = Teuchos::rcp( new ConstantForcingTerm() );
+            forcing_term = Teuchos::rcp( new ConstantForcingTerm(parameters) );
             break;
     }
 

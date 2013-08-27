@@ -68,8 +68,8 @@ class PerturbationParameter
     //! acting, generate a perturbation parameter for the Jacobian-free
     //! approximation.
     virtual double calculatePerturbation( 
-        const Teuchos::RCP<Epetra_Vector>& u,
-        const Teuchos::RCP<Epetra_Vector>& v ) = 0;
+        const Teuchos::RCP<const Epetra_Vector>& u,
+        const Teuchos::RCP<const Epetra_Vector>& v ) = 0;
 };
 
 //---------------------------------------------------------------------------//

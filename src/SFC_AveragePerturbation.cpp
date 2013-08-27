@@ -53,8 +53,8 @@ namespace SFC
  * approximation. Eq(11) in Knoll and Keyes 2004 JFNK survey paper.
  */
 double AveragePerturbation::calculatePerturbation( 
-    const Teuchos::RCP<Epetra_Vector>& u,
-    const Teuchos::RCP<Epetra_Vector>& v )
+    const Teuchos::RCP<const Epetra_Vector>& u,
+    const Teuchos::RCP<const Epetra_Vector>& v )
 {
     int epetra_error = 0;
     double b = 10000 * std::numeric_limits<double>::epsilon();

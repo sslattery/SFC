@@ -38,6 +38,7 @@
  */
 //---------------------------------------------------------------------------//
 
+#include "SFC_DBC.hpp"
 #include "SFC_NonlinearProblem.hpp"
 
 namespace SFC

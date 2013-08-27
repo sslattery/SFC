@@ -76,6 +76,9 @@ class NewtonSolver
 
     // Globalization.
     Teuchos::RCP<Globalization> d_globalization;
+
+    // Parameters.
+    Teuchos::RCP<Teuchos::ParameterList> d_parameters;
 };
 
 //---------------------------------------------------------------------------//

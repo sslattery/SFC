@@ -49,7 +49,7 @@ namespace SFC
  */
 BasicLineSearch::BasicLineSearch( const Teuchos::ParameterList& parameters )
 {
-    d_max_iters = parameters.get( "Line Search Maximum Iterations" );
+    d_max_iters = parameters.get<int>( "Line Search Maximum Iterations" );
     SFC_ENSURE( 0 <= d_max_iters );
 }
 
@@ -69,7 +69,7 @@ void BasicLineSearch::setNonlinearProblem(
     new update. 
 */
 void BasicLineSearch::calculateUpdate( 
-    const Teuchos::RCP<Epetra_Vector>& newton_update,
+    const Teuchos::RCP<const Epetra_Vector>& newton_update,
     Teuchos::RCP<Epetra_Vector>& global_update )
 {
     SFC_REQUIRE( Teuchos::nonnull(d_nonlinear_problem) );

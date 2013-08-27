@@ -70,8 +70,8 @@ class AveragePerturbation : public PerturbationParameter
     //! Given a the nonlinear solution and the vector on which the Jacobian is
     //! acting, generate a perturbation parameter for the Jacobian-free
     //! approximation.
-    double calculatePerturbation( const Teuchos::RCP<Epetra_Vector>& u,
-                                  const Teuchos::RCP<Epetra_Vector>& v );
+    double calculatePerturbation( const Teuchos::RCP<const Epetra_Vector>& u,
+                                  const Teuchos::RCP<const Epetra_Vector>& v );
 };
 
 //---------------------------------------------------------------------------//

@@ -44,7 +44,7 @@
 #include <map>
 #include <string>
 
-#include "SFC_PertubationParameterFactory.hpp"
+#include "SFC_PerturbationParameter.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>

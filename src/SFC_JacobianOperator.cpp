@@ -43,9 +43,7 @@
 #include "SFC_DBC.hpp"
 #include "SFC_JacobianOperator.hpp"
 
-#include <Teuchos_ArrayRCP.hpp>
-
-#include <Epetra_RowMatrixTransposer.h>
+#include <Teuchos_as.hpp>
 
 namespace SFC
 {
@@ -55,12 +53,28 @@ namespace SFC
  */
 JacobianOperator::JacobianOperator( 
     const Teuchos::RCP<NonlinearProblem>& nonlinear_problem,
-    const double epsilon )
+    const Teuchos::RCP<PerturbationParameter>& perturbation )
     : d_nonlinear_problem( nonlinear_problem )
     , d_perturbation( perturbation )
 {
-    SFC_REQUIRE( Teuchos::nonull(d_nonlinear_problem) );
+    SFC_REQUIRE( Teuchos::nonnull(d_nonlinear_problem) );
     SFC_REQUIRE( Teuchos::nonnull(d_perturbation) );
+
+    int * domain_elements;
+    d_nonlinear_problem->getF()->Map().MyGlobalElementsPtr( domain_elements );
+    d_domain_map = Teuchos::rcp(
+        new Epetra_Map( d_nonlinear_problem->getF()->Map().NumGlobalElements(),
+                        d_nonlinear_problem->getF()->Map().NumMyElements(),
+                        domain_elements, 0,
+                        d_nonlinear_problem->getF()->Comm() ) );
+
+    int * range_elements;
+    d_nonlinear_problem->getU()->Map().MyGlobalElementsPtr( range_elements );
+    d_range_map = Teuchos::rcp(
+        new Epetra_Map( d_nonlinear_problem->getU()->Map().NumGlobalElements(),
+                        d_nonlinear_problem->getU()->Map().NumMyElements(),
+                        range_elements, 0,
+                        d_nonlinear_problem->getU()->Comm() ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -77,10 +91,10 @@ JacobianOperator::~JacobianOperator()
 int JacobianOperator::Apply( const Epetra_MultiVector& X, 
                              Epetra_MultiVector& Y ) const
 {
-    Teuchos::RCP<Epetra_Vector> x = Teuchos::rcp( X(0), false );
+    Teuchos::RCP<const Epetra_Vector> x = Teuchos::rcp( X(0), false );
     Teuchos::RCP<Epetra_Vector> y = Teuchos::rcp( Y(0), false );
 
-    double epsilon = d_perturbation->calculationPertubation( 
+    double epsilon = d_perturbation->calculatePerturbation( 
         d_nonlinear_problem->getU(), x );
 
     Teuchos::RCP<Epetra_Vector> perturbed_F = 
@@ -118,8 +132,8 @@ Teuchos::RCP<Epetra_CrsMatrix> JacobianOperator::getCrsMatrix() const
     int local_length =  d_nonlinear_problem->getU()->MyLength();
     Epetra_Vector column_basis( d_nonlinear_problem->getU()->Map() );
     Epetra_Vector extract_column( d_nonlinear_problem->getU()->Map() );
-    Teuchos::RCP<Epetra_CrsMatrix> jacobian = Teuchos::rcp( 
-        new Epetra_CrsMatrix(Copy,d_nonlinear_problem->getU()->Map(),0) );
+    Teuchos::RCP<Epetra_CrsMatrix> jacobian = 
+        Teuchos::rcp( new Epetra_CrsMatrix(Copy,*d_domain_map,0) );
 
     for ( int n = 0; n < global_length; ++n )
     {
@@ -134,9 +148,10 @@ Teuchos::RCP<Epetra_CrsMatrix> JacobianOperator::getCrsMatrix() const
         {
             if ( extract_column[i] != 0.0 )
             {
-                epetra_error = jacobian->InsertGlobalValues( 
-                    d_nonlinear_problem->getU->Map()->GID(i), 1, 
-                    &extract_column[i], &n );
+                epetra_error = 
+                    jacobian->InsertGlobalValues( 
+                        d_nonlinear_problem->getU()->Map().GID(i), 1, 
+                        &extract_column[i], &n );
                 SFC_CHECK( 0 == epetra_error );
             }
         }

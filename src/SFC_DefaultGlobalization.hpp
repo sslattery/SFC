@@ -57,7 +57,7 @@ namespace SFC
  * global update is simply set to the input newton update.
  */
 //---------------------------------------------------------------------------//
-class DefaultGlobalization
+class DefaultGlobalization : public Globalization
 {
   public:
 
@@ -74,8 +74,9 @@ class DefaultGlobalization
 
     //! Given a Newton update, apply the linesearch technique and compute a
     //! new update.
-    void calculateUpdate( const Teuchos::RCP<Epetra_Vector>& newton_update,
-                          Teuchos::RCP<Epetra_Vector>& global_update );
+    void calculateUpdate(
+        const Teuchos::RCP<const Epetra_Vector>& newton_update,
+        Teuchos::RCP<Epetra_Vector>& global_update );
 };
 
 //---------------------------------------------------------------------------//

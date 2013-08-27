@@ -113,20 +113,21 @@ void NewtonSolver::solve()
     AztecOO gmres_solver( linear_problem );
     aztec_error = gmres_solver.SetAztecOption( AZ_solver, AZ_gmres );
     SFC_CHECK( 0 == aztec_error );
-    int max_gmres_iters = d_parameters->get( "GMRES Maximum Iterations" );
+    int max_gmres_iters = d_parameters->get<int>( "GMRES Maximum Iterations" );
 
     // Get Newton solver parameters.
-    int max_newton_iters = d_parameters->get( "Newton Maximum Iterations" );
+    int max_newton_iters = d_parameters->get<int>( "Newton Maximum Iterations" );
     double newton_tolerance = 
-        d_parameters->get( "Newton Convergence Tolerance" );
+        d_parameters->get<int>( "Newton Convergence Tolerance" );
 
     // Evaluate the initial nonlinear residual and get the preliminary norms.
+    int epetra_error = 0.0;
     d_nonlinear_problem->evaluate();
     double norm_F_0 = 0.0;
-    int epetra_error = d_nonlinear_problem->getF()->Norm2( &norm_F_0 );
+    epetra_error = d_nonlinear_problem->getF()->Norm2( &norm_F_0 );
     SFC_CHECK( 0 == epetra_error );
     double norm_F_k = 0.0;
-    int epetra_error = d_nonlinear_problem->getF()->Norm2( &norm_F_k );
+    epetra_error = d_nonlinear_problem->getF()->Norm2( &norm_F_k );
     SFC_CHECK( 0 == epetra_error );
 
     // Perform Newton iterations until convergence.
@@ -158,7 +159,7 @@ void NewtonSolver::solve()
         ++num_iters;
 
         // Output.
-        std::cout << "Newton Iteration " << num_iters <<
+        std::cout << "Newton Iteration " << num_iters
                   << ": ||F||^k / ||F||^0 = " << norm_F_k / norm_F_0 
                   << std::endl;
     }

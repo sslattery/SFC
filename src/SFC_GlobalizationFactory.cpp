@@ -65,7 +65,7 @@ GlobalizationFactory::create( const Teuchos::ParameterList& parameters )
     std::string name;
     if ( parameters.isParameter("Globalization Type") )
     {
-        name = parameters.get( "Globalization Type" );
+        name = parameters.get<std::string>( "Globalization Type" );
     }
     else
     {
@@ -79,9 +79,9 @@ GlobalizationFactory::create( const Teuchos::ParameterList& parameters )
 
     switch( id->second )
     {
-        case DEFAULT
+        case DEFAULT:
             globalization = Teuchos::rcp( new DefaultGlobalization() );
-            break
+            break;
 
         case BASIC_LINE_SEARCH:
             globalization = Teuchos::rcp( new BasicLineSearch(parameters) );

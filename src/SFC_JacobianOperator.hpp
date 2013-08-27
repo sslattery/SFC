@@ -78,7 +78,7 @@ class JacobianOperator : public Epetra_Operator
 
     // Inverse apply operation. This operator is not supported
     int ApplyInverse( const Epetra_MultiVector& X, 
-                      Epetra_MultiVector& Y ) const;
+                      Epetra_MultiVector& Y ) const
     { return -1; }
 
     //! Get the infinity norm.
@@ -96,17 +96,18 @@ class JacobianOperator : public Epetra_Operator
 
     //! Returns a pointer to the Epetra_Comm communicator associated with this
     //! operator.
-    const Epetra_Comm & Comm() const { return d_u->Comm(); }
+    const Epetra_Comm& Comm() const 
+    { return d_nonlinear_problem->getU()->Comm(); }
 
     //! Returns the Epetra_Map object associated with the domain of this
     //! operator.
-    const Epetra_Map & OperatorDomainMap() const 
-    { return d_nonlinear_problem->getF()->Map(); }
+    const Epetra_Map& OperatorDomainMap() const 
+    { return *d_domain_map; }
 
     //! Returns the Epetra_Map object associated with the range of this
     //! operator.
-    const Epetra_Map & OperatorRangeMap() const 
-    { return d_nonlinear_problem->getU()->Map(); }
+    const Epetra_Map& OperatorRangeMap() const 
+    { return *d_range_map; }
     //@}
 
     // Get the fully formed operator to build preconditioners.
@@ -119,6 +120,12 @@ class JacobianOperator : public Epetra_Operator
 
     // Jacobian-free perturbation parameter.
     Teuchos::RCP<PerturbationParameter> d_perturbation;
+
+    // Operator domain map.
+    Teuchos::RCP<Epetra_Map> d_domain_map;
+
+    // Operator range map.
+    Teuchos::RCP<Epetra_Map> d_range_map;
 };
 
 //---------------------------------------------------------------------------//

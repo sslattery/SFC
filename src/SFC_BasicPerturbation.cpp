@@ -53,8 +53,8 @@ namespace SFC
  * machine epsilon.
  */
 double BasicPerturbation::calculatePerturbation( 
-    const Teuchos::RCP<Epetra_Vector>& u,
-    const Teuchos::RCP<Epetra_Vector>& v )
+    const Teuchos::RCP<const Epetra_Vector>& u,
+    const Teuchos::RCP<const Epetra_Vector>& v )
 {
     return 2.0 * std::pow( std::numeric_limits<double>::epsilon(), 0.5 );
 }
