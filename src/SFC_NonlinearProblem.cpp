@@ -32,86 +32,55 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_JacobianOperator.cpp
+ * \file   SFC_NonlinearProblem.cpp
  * \author Stuart Slattery
- * \brief  Jacobian operator class.
+ * \brief  Nonlinear problem container.
  */
 //---------------------------------------------------------------------------//
 
-#include "SFC_DBC.hpp"
-#include "SFC_JacobianOperator.hpp"
+#include "SFC_NonlinearProblem.hpp"
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Constructor.
+ * \brief Constructor
  */
-JacobianOperator::JacobianOperator( 
-    const Teuchos::RCP<NonlinearProblem>& nonlinear_problem,
-    const double epsilon )
-    : d_nonlinear_problem( nonlinear_problem )
-    , d_epsilon( epsilon )
-{ 
-    SFC_REQUIRE( Teuchos::nonull(d_nonlinear_problem) );
-    SFC_REQUIRE( 0.0 < epsilon );
+NonlinearProblem::NonlinearProblem( const Teuchos::RCP<ModelEvaluator>& me,
+				    const Teuchos::RCP<Epetra_Vector>& u )
+    : d_me( me )
+    , d_u( u )
+    , d_F( Teuchos::rcp( new Epetra_Vector(u->Map())) )
+{
+    SFC_REQUIRE( Teuchos::nonnull(d_me) );
+    SFC_REQUIRE( Teuchos::nonnull(d_u) );
+    SFC_REQUIRE( Teuchos::nonnull(d_F) );
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Destructor.
+ * \brief Destructor
  */
-JacobianOperator::~JacobianOperator()
+NonlinearProblem::~NonlinearProblem()
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Jacobian-free Apply operation. SFC only operates on vectors.
+ * \brief Evaluate the nonlinear model with the current solution to update the
+ * nonlinear residual.
  */
-int JacobianOperator::Apply( const Epetra_MultiVector& X, 
-                             Epetra_MultiVector& Y ) const
+    
+void NonlinearProblem::evaluate()
 {
-    Teuchos::RCP<Epetra_Vector> x = Teuchos::rcp( X(0), false );
-    Teuchos::RCP<Epetra_Vector> y = Teuchos::rcp( Y(0), false );
-
-    Teuchos::RCP<Epetra_Vector> perturbed_F = 
-	Teuchos::rcp( new Epetra_Vector(x->Map()) );
-
-    Teuchos::RCP<Epetra_Vector> perturbed_U = 
-	Teuchos::rcp( new Epetra_Vector(x->Map()) );
-    int epetra_error = 0;
-    epetra_error = 
-	perturbed_U->Update( 1.0, *(d_nonlinear_problem->getU()), 
-			     epsilon, *x, 0.0 );
-    SFC_CHECK( 0 == epetra_error );
-
-    d_nonlinear_problem->getModelEvaluator()->evaluate( perturbed_U,
-							perturbed_F );
-
-    epetra_error = y->Update( 1.0, *perturbed_F, 
-			     -1.0, *(d_nonlinear_problem->getF()), 0.0 );
-    SFC_CHECK( 0 == epetra_error );
-
-    epetra_error = y->Scale( 1.0 / epsilon );
-    SFC_CHECK( 0 == epetra_error );
-
-    return 0;
+    d_me->evaluate( d_u, d_F );
 }
 
 //---------------------------------------------------------------------------//
-/*!
- * \brief Get the fully formed operator to build preconditioners.
- */
-Teuchos::RCP<Epetra_CrsMatrix> JacobianOperator::getCrsMatrix() const
-{
 
-}
-
-//---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
 //---------------------------------------------------------------------------//
-// end SFC_JacobianOperator.cpp
+// end SFC_NonlinearProblem.hpp
 //---------------------------------------------------------------------------//
 

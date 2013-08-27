@@ -32,14 +32,16 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_NonlinearResidual.hpp
+ * \file   SFC_NonlinearProblem.hpp
  * \author Stuart Slattery
- * \brief  Interface definition for nonlinear residuals.
+ * \brief  Nonlinear problem container.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_NONLINEARRESIDUAL_HPP
-#define SFC_NONLINEARRESIDUAL_HPP
+#ifndef SFC_NONLINEARPROBLEM_HPP
+#define SFC_NONLINEARPROBLEM_HPP
+
+#include "SFC_ModelEvaluator.hpp"
 
 #include <Teuchos_RCP.hpp>
 
@@ -49,29 +51,51 @@ namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Base class for nonlinear resiudals.
+ * \brief Nonlinear problem container.
  */
 //---------------------------------------------------------------------------//
-class NonlinearResidual
+class NonlinearProblem
 {
   public:
 
-    //! Constructor.
-    NonlinearResidual()
-    { /* ... */ }
+    // Constructor.
+    NonlinearProblem( const Teuchos::RCP<ModelEvaluator>& me, 
+		      const Teuchos::RCP<Epetra_Vector>& u );
 
-    //! Destructor.
-    virtual ~NonlinearResidual()
-    { /* ... */ }
+    // Destructor.
+    ~NonlinearProblem();
 
-    //! Given a vector, evaluate the nonlinear residual.
-    virtual void evaluate( const Teuchos::RCP<Epetra_Vector>& u,
-                           Teuchos::RCP<Epetra_Vector>& F ) = 0;
+    // Get the model evaluator.
+    Teuchos::RCP<ModelEvaluator> getModelEvaluator() const
+    { return d_me; }
+
+    // Get the nonlinear solution.
+    Teuchos::RCP<Epetra_Vector> getU() const
+    { return d_u; }
+
+    // Get the nonlinear residual.
+    Teuchos::RCP<Epetra_Vector> getF() const
+    { return d_F; }
+
+    // Evaluate the nonlinear model with the current solution to update the
+    // nonlinear residual.
+    void evaluate();
+
+  private:
+    
+    // Nonlinear model evaluator.
+    Teuchos::RCP<ModelEvaluator> d_me;
+
+    // Nonlinear residual.
+    Teuchos::RCP<Epetra_Vector> d_F;
+
+    // Nonlinear solution.
+    Teuchos::RCP<Epetra_Vector> d_u;
 };
 
-#endif // end SFC_NONLINEARRESIDUAL_HPP
+#endif // end SFC_NONLINEARPROBLEM_HPP
 
 //---------------------------------------------------------------------------//
-// end SFC_NonlinearResidual.hpp
+// end SFC_NonlinearProblem.hpp
 //---------------------------------------------------------------------------//
 

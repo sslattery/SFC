@@ -23,10 +23,15 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   SFC_DBC.hpp
+  SFC_JacobianOperator.hpp
+  SFC_ModelEvaluator.hpp
+  SFC_NonlinearProblem.hpp
   ) 
 
 APPEND_SET(SOURCES
   SFC_DBC.cpp
+  SFC_JacobianOperator.cpp
+  SFC_NonlinearProblem.cpp
   )
 
 #

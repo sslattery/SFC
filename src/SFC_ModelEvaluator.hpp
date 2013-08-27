@@ -32,93 +32,46 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_JacobianOperator.hpp
+ * \file   SFC_ModelEvaluator.hpp
  * \author Stuart Slattery
- * \brief  Jacobian operator class.
+ * \brief  Interface definition for model evaluators.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_JACOBIANOPERATOR_HPP
-#define SFC_JACOBIANOPERATOR_HPP
-
-#include "SFC_NonlinearProblem.hpp"
+#ifndef SFC_MODELEVALUATOR_HPP
+#define SFC_MODELEVALUATOR_HPP
 
 #include <Teuchos_RCP.hpp>
 
-#include <Epetra_Operator.h>
-#include <Epetra_CrsMatrix.h>
+#include <Epetra_Vector.h>
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Jacobian operator.
+ * \brief Base class for model evaluators
  */
 //---------------------------------------------------------------------------//
-class JacobianOperator : public Epetra_Operator
+class ModelEvaluator
 {
   public:
 
-    // Constructor.
-    JacobianOperator( const Teuchos::RCP<NonlinearProblem>& nonlinear_problem,
-		      const double epsilon );
+    //! Constructor.
+    ModelEvaluator()
+    { /* ... */ }
 
-    // Destructor.
-    ~JacobianOperator();
+    //! Destructor.
+    virtual ~ModelEvaluator()
+    { /* ... */ }
 
-    //@{
-    //! Epetra_Operator interface.
-    // Set to false for not supporting the transpose.
-    int SetUseTranspose(bool UseTranspose) { return 0; }
-
-    // Jacobian-free Apply operation.
-    int Apply( const Epetra_MultiVector& X, Epetra_MultiVector& Y ) const;
-
-    // Inverse apply operation.
-    int ApplyInverse( const Epetra_MultiVector& X, Epetra_MultiVector& Y ) const;
-    { return 0; }
-
-    // Get the infinity norm.
-    double NormInf() const { return 0.0; }
-
-    // Returns a character string describing the operator
-    const char * Label() const { return std::string("SFC Jacobian").c_str(); }
-
-    // Returns the current UseTranspose setting.
-    bool UseTranspose() const { return false; }
-
-    // Returns true if the \e this object can provide an approximate Inf-norm,
-    // false otherwise.
-    bool HasNormInf() const { return false; }
-
-    // Returns a pointer to the Epetra_Comm communicator associated with this
-    // operator.
-    const Epetra_Comm & Comm() const { return d_u->Comm(); }
-
-    // Returns the Epetra_Map object associated with the domain of this
-    // operator.
-    const Epetra_Map & OperatorDomainMap() const { return d_u->Map(); }
-
-    // Returns the Epetra_Map object associated with the range of this
-    // operator.
-    const Epetra_Map & OperatorRangeMap() const { return d_u->Map(); }
-    //@}
-
-    // Get the fully formed operator to build preconditioners.
-    Teuchos::RCP<Epetra_CrsMatrix> getCrsMatrix() const;
-
-  private:
-    
-    // Nonlinear residual.
-    Teuchos::RCP<NonlinearProblem> d_nonlinear_problem;
-
-    // Jacobian-free perturbation parameter.
-    double d_epsilon;
+    //! Given a vector, evaluate the model and generate a nonlinear residual.
+    virtual void evaluate( const Teuchos::RCP<Epetra_Vector>& u,
+                           Teuchos::RCP<Epetra_Vector>& F ) = 0;
 };
 
-#endif // end SFC_JACOBIANOPERATOR_HPP
+#endif // end SFC_MODELEVALUATOR_HPP
 
 //---------------------------------------------------------------------------//
-// end SFC_JacobianOperator.hpp
+// end SFC_ModelEvaluator.hpp
 //---------------------------------------------------------------------------//
 
