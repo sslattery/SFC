@@ -70,7 +70,7 @@ class ConstantForcingTerm : public ForcingTerm
     { /* ... */ }
 
     //! Given a nonlinear problem, compute a new forcing term.
-    double calculateConstantForcingTerm()
+    double calculateForcingTerm()
     { return d_forcing_term; }
 
   private:

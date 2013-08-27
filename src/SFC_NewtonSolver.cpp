@@ -38,6 +38,8 @@
  */
 //---------------------------------------------------------------------------//
 
+#include <iostream>
+
 #include "SFC_DBC.hpp"
 #include "SFC_NewtonSolver.hpp"
 #include "SFC_JacobianOperator.hpp"
@@ -73,23 +75,30 @@ NewtonSolver::NewtonSolver(
  */
 void NewtonSolver::solve()
 {
+    // Setup the globalization method.
     GlobalizationFactory globalization_factory;
     Teuchos::RCP<Globalization> globalization = 
         globalization_factory.create( *d_parameters );
     globalization->setNonlinearProblem( d_nonlinear_problem );
+    Teuchos::RCP<Epetra_Vector> global_update = Teuchos::rcp(
+        new Epetra_Vector(d_nonlinear_problem->getU()->Map()) );
 
+    // Build the forcing term.
     ForcingTermFactory forcing_term_factory;
     Teuchos::RCP<ForcingTerm> forcing_term = 
         forcing_term_factory.create( *d_parameters );
     forcing_term->setNonlinearProblem( d_nonlinear_problem );
 
+    // Build the matrix-free perturbation method.
     PerturbationParameterFactory perturbation_factory;
     Teuchos::RCP<PerturbationParameter> perturbation =
         perturbation_factory.create( *d_parameters );
 
+    // Build the Jacobian.
     Teuchos::RCP<JacobianOperator> jacobian = Teuchos::rcp(
         new JacobianOperator(d_nonlinear_problem, perturbation) );
 
+    // Build the linear model.
     Teuchos::RCP<Epetra_Operator> epetra_jacobian = jacobian;
     Teuchos::RCP<Epetra_Vector> newton_update = Teuchos::rcp(
         new Epetra_Vector(d_nonlinear_problem->getU()->Map()) );
@@ -99,12 +108,59 @@ void NewtonSolver::solve()
                                          newton_update.getRawPtr(),
                                          newton_rhs.getRawPtr() );
 
+    // Build GMRES solver.
     int aztec_error = 0;
-    AztecOO linear_solver( linear_problem );
-    aztec_error = solver.SetAztecOption( AZ_solver, AZ_gmres );
+    AztecOO gmres_solver( linear_problem );
+    aztec_error = gmres_solver.SetAztecOption( AZ_solver, AZ_gmres );
     SFC_CHECK( 0 == aztec_error );
+    int max_gmres_iters = d_parameters->get( "GMRES Maximum Iterations" );
 
+    // Get Newton solver parameters.
     int max_newton_iters = d_parameters->get( "Newton Maximum Iterations" );
+    int newton_tolerance = d_parameters->get( "Newton Convergence Tolerance" );
+
+    // Evaluate the initial nonlinear residual and get the preliminary norms.
+    d_nonlinear_problem->evaluate();
+    double norm_F_0 = 0.0;
+    int epetra_error = d_nonlinear_problem->getF()->Norm2( &norm_F_0 );
+    SFC_CHECK( 0 == epetra_error );
+    double norm_F_k = 0.0;
+    int epetra_error = d_nonlinear_problem->getF()->Norm2( &norm_F_k );
+    SFC_CHECK( 0 == epetra_error );
+
+    // Perform Newton iterations until convergence.
+    bool converged = ( (norm_F_k / norm_F_0) < newton_tolerance );
+    int num_iters = 0;
+    double eta = 0.0;
+    while ( !converged && num_iters < max_newton_iters )
+    {
+        // Setup the linear model.
+        epetra_error = 
+            newton_rhs->Update( -1.0, *(d_nonlinear_problem->getF()), 0.0 );
+        SFC_CHECK( 0 == epetra_error );
+
+        // Solve the linear model.
+        eta = forcing_term->calculateForcingTerm();
+        aztec_error = gmres_solver.Iterate( max_gmres_iters, eta );
+        SFC_CHECK( 0 == aztec_error );
+
+        // Apply globalization to the Newton Vector.
+        globalization->calculateUpdate( newton_update, global_update );
+
+        // Update the nonlinear solution.
+        epetra_error = 
+            d_nonlinear_problem->getU()->Update( 1.0, *global_update, 1.0 );
+        SFC_CHECK( 0 == epetra_error );
+
+        // Check for convergence of the nonlinear residual.
+        converged = ( (norm_F_k / norm_F_0) < newton_tolerance );
+        ++num_iters;
+
+        // Output.
+        std::cout << "Newton Iteration " << num_iters <<
+                  << ": ||F||_2 / ||F||_0 = " << norm_F_k / norm_F_0 
+                  << std::endl;
+    }
 }
 
 //---------------------------------------------------------------------------//
