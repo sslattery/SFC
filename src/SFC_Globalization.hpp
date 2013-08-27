@@ -32,64 +32,58 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_PerturbationParameterFactory.hpp
+ * \file   SFC_Globalization.hpp
  * \author Stuart Slattery
- * \brief  Factory for Jacobian-free perturbation parameters.
+ * \brief  Interface definition for Newton globalization techniques.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_PERTURBATIONPARAMETERFACTORY_HPP
-#define SFC_PERTURBATIONPARAMETERFACTORY_HPP
+#ifndef SFC_GLOBALIZATION_HPP
+#define SFC_GLOBALIZATION_HPP
 
-#include <map>
-#include <string>
-
-#include "SFC_PertubationParameterFactory.hpp"
+#include "SFC_NonlinearProblem.hpp"
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_ParameterList.hpp>
+
+#include <Epetra_Vector.h>
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Factory for Jacobian-free perturbation parameters.
+ * \brief Base class for Newton update globalization.
  */
 //---------------------------------------------------------------------------//
-class PerturbationParameterFactory
+class Globalization
 {
   public:
 
     //! Constructor.
-    PerturbationParameterFactory();
-
-    //! Destructor.
-    ~PerturbationParameterFactory()
+    Globalization()
     { /* ... */ }
 
-    // Creation method.
-    Teuchos::RCP<PerturbationParameter> 
-    create( const Teuchos::ParameterList& parameters );
+    //! Destructor.
+    virtual ~Globalization()
+    { /* ... */ }
 
-  private:
+    //! Set the nonlinear problem.
+    virtual void setNonlinearProblem( 
+        const Teuchos::RCP<NonlinearProblem>& nonlinear_problem ) = 0;
 
-    // Perturbation enum.
-    enum SFCPerturbationType {
-        BASIC,
-        AVERAGE
-    };
-
-    // String name to enum/integer map.
-    std::map<std::string,int> d_name_map;
+    //! Given a Newton update, apply the globalization technique and compute a
+    //! new update.
+    virtual void calculateUpdate( 
+        const Teuchos::RCP<Epetra_Vector>& newton_update,
+        Teuchos::RCP<Epetra_Vector>& global_update ) = 0;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
-#endif // end SFC_PERTURBATIONPARAMETERFACTORY_HPP
+#endif // end SFC_GLOBALIZATION_HPP
 
 //---------------------------------------------------------------------------//
-// end SFC_PerturbationParameterFactory.hpp
+// end SFC_Globalization.hpp
 //---------------------------------------------------------------------------//
 

@@ -32,64 +32,61 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_PerturbationParameterFactory.hpp
+ * \file   SFC_GlobalizationFactory.cpp
  * \author Stuart Slattery
  * \brief  Factory for Jacobian-free perturbation parameters.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_PERTURBATIONPARAMETERFACTORY_HPP
-#define SFC_PERTURBATIONPARAMETERFACTORY_HPP
-
-#include <map>
-#include <string>
-
-#include "SFC_PertubationParameterFactory.hpp"
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ParameterList.hpp>
+#include "SFC_DBC.hpp"
+#include "SFC_GlobalizationFactory.hpp"
+#include "SFC_BasicLineSearch.hpp"
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Factory for Jacobian-free perturbation parameters.
+ * \brief Constructor.
  */
-//---------------------------------------------------------------------------//
-class PerturbationParameterFactory
+GlobalizationFactory::GlobalizationFactory()
 {
-  public:
+    d_name_map["Basic Line Search"] = BASIC_LINE_SEARCH;
+}
 
-    //! Constructor.
-    PerturbationParameterFactory();
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Creation method.
+ */
+Teuchos::RCP<Globalization> 
+GlobalizationFactory::create( const Teuchos::ParameterList& parameters )
+{
+    std::string name = parameters.get( "Globalization Type" );
 
-    //! Destructor.
-    ~PerturbationParameterFactory()
-    { /* ... */ }
+    Teuchos::RCP<Globalization> globalization;
 
-    // Creation method.
-    Teuchos::RCP<PerturbationParameter> 
-    create( const Teuchos::ParameterList& parameters );
+    std::map<std::string,int>::const_iterator id = d_name_map.find( name );
+    SFC_CHECK( id != d_name_map.end() );
 
-  private:
+    switch( id->second )
+    {
+        case BASIC_LINE_SEARCH:
+            globalization = Teuchos::rcp( new BasicLineSearch(parameters) );
+            break;
 
-    // Perturbation enum.
-    enum SFCPerturbationType {
-        BASIC,
-        AVERAGE
-    };
+        default:
+            throw Assertion( "Globalization type not supported!" );
+            break
+    }
 
-    // String name to enum/integer map.
-    std::map<std::string,int> d_name_map;
-};
+    SFC_ENSURE( Teuchos::nonnull(globalization) );
+    return globalization;
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
-#endif // end SFC_PERTURBATIONPARAMETERFACTORY_HPP
-
 //---------------------------------------------------------------------------//
-// end SFC_PerturbationParameterFactory.hpp
+// end SFC_GlobalizationFactory.hpp
 //---------------------------------------------------------------------------//
 

@@ -49,7 +49,8 @@ namespace SFC
 /*!
  * \brief Given a the nonlinear solution and the vector on which the Jacobian
  * is acting, generate a perturbation parameter for the Jacobian-free
- * approximation.   
+ * approximation. This is just something larger than the square root of
+ * machine epsilon.
  */
 double BasicPerturbation::calculatePerturbation( 
     const Teuchos::RCP<Epetra_Vector>& u,

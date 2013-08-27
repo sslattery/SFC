@@ -23,8 +23,11 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   SFC_AveragePerturbation.hpp
+  SFC_BasicLineSearch.hpp
   SFC_BasicPerturbation.hpp
   SFC_DBC.hpp
+  SFC_Globalization.hpp
+  SFC_GlobalizationFactory.hpp
   SFC_JacobianOperator.hpp
   SFC_ModelEvaluator.hpp
   SFC_NonlinearProblem.hpp
@@ -34,8 +37,10 @@ APPEND_SET(HEADERS
 
 APPEND_SET(SOURCES
   SFC_AveragePerturbation.cpp
+  SFC_BasicLineSearch.cpp
   SFC_BasicPerturbation.cpp
   SFC_DBC.cpp
+  SFC_GlobalizationFactory.cpp
   SFC_JacobianOperator.cpp
   SFC_NonlinearProblem.cpp
   SFC_PerturbationParameterFactory.cpp

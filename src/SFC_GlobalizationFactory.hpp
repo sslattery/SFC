@@ -32,19 +32,19 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_PerturbationParameterFactory.hpp
+ * \file   SFC_GlobalizationFactory.hpp
  * \author Stuart Slattery
- * \brief  Factory for Jacobian-free perturbation parameters.
+ * \brief  Factory for globalization techniques.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_PERTURBATIONPARAMETERFACTORY_HPP
-#define SFC_PERTURBATIONPARAMETERFACTORY_HPP
+#ifndef SFC_GLOBALIZATIONFACTORY_HPP
+#define SFC_GLOBALIZATIONFACTORY_HPP
 
 #include <map>
 #include <string>
 
-#include "SFC_PertubationParameterFactory.hpp"
+#include "SFC_Globalization.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -53,30 +53,29 @@ namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Factory for Jacobian-free perturbation parameters.
+ * \brief Factory for globalization techniques.
  */
 //---------------------------------------------------------------------------//
-class PerturbationParameterFactory
+class GlobalizationFactory
 {
   public:
 
     //! Constructor.
-    PerturbationParameterFactory();
+    GlobalizationFactory();
 
     //! Destructor.
-    ~PerturbationParameterFactory()
+    ~GlobalizationFactory()
     { /* ... */ }
 
     // Creation method.
-    Teuchos::RCP<PerturbationParameter> 
+    Teuchos::RCP<Globalization> 
     create( const Teuchos::ParameterList& parameters );
 
   private:
 
     // Perturbation enum.
     enum SFCPerturbationType {
-        BASIC,
-        AVERAGE
+        BASIC_LINE_SEARCH,
     };
 
     // String name to enum/integer map.
@@ -87,9 +86,9 @@ class PerturbationParameterFactory
 
 } // end namespace SFC
 
-#endif // end SFC_PERTURBATIONPARAMETERFACTORY_HPP
+#endif // end SFC_GLOBALIZATIONFACTORY_HPP
 
 //---------------------------------------------------------------------------//
-// end SFC_PerturbationParameterFactory.hpp
+// end SFC_GlobalizationFactory.hpp
 //---------------------------------------------------------------------------//
 

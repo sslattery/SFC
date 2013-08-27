@@ -32,64 +32,66 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_PerturbationParameterFactory.hpp
+ * \file   SFC_BasicLineSearch.hpp
  * \author Stuart Slattery
- * \brief  Factory for Jacobian-free perturbation parameters.
+ * \brief  Basic line search globalization.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_PERTURBATIONPARAMETERFACTORY_HPP
-#define SFC_PERTURBATIONPARAMETERFACTORY_HPP
+#ifndef SFC_BASICLINESEARCH_HPP
+#define SFC_BASICLINESEARCH_HPP
 
-#include <map>
-#include <string>
-
-#include "SFC_PertubationParameterFactory.hpp"
+#include "SFC_Globalization.hpp"
+#include "SFC_NonlinearProblem.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
+
+#include <Epetra_Vector.h>
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Factory for Jacobian-free perturbation parameters.
+ * \brief Base class for Jacobian-free perturbation parameters.
  */
 //---------------------------------------------------------------------------//
-class PerturbationParameterFactory
+class BasicLineSearch
 {
   public:
 
     //! Constructor.
-    PerturbationParameterFactory();
+    BasicLineSearch( const Teuchos::ParameterList& parameters );
 
     //! Destructor.
-    ~PerturbationParameterFactory()
+    ~BasicLineSearch()
     { /* ... */ }
 
-    // Creation method.
-    Teuchos::RCP<PerturbationParameter> 
-    create( const Teuchos::ParameterList& parameters );
+    //! Set the nonlinear problem.
+    void setNonlinearProblem( 
+        const Teuchos::RCP<NonlinearProblem>& nonlinear_problem );
+
+    //! Given a Newton update, apply the linesearch technique and compute a
+    //! new update.
+    void calculateUpdate( const Teuchos::RCP<Epetra_Vector>& newton_update,
+                          Teuchos::RCP<Epetra_Vector>& global_update );
 
   private:
 
-    // Perturbation enum.
-    enum SFCPerturbationType {
-        BASIC,
-        AVERAGE
-    };
+    // Nonlinear problem.
+    Teuchos::RCP<NonlinearProblem> d_nonlinear_problem;
 
-    // String name to enum/integer map.
-    std::map<std::string,int> d_name_map;
+    // Maximum number of line search iterations.
+    int d_max_iters;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
-#endif // end SFC_PERTURBATIONPARAMETERFACTORY_HPP
+#endif // end SFC_BASICLINESEARCH_HPP
 
 //---------------------------------------------------------------------------//
-// end SFC_PerturbationParameterFactory.hpp
+// end SFC_BasicLineSearch.hpp
 //---------------------------------------------------------------------------//
 

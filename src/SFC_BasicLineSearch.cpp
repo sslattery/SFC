@@ -32,64 +32,92 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_PerturbationParameterFactory.hpp
+ * \file   SFC_BasicLineSearch.cpp
  * \author Stuart Slattery
- * \brief  Factory for Jacobian-free perturbation parameters.
+ * \brief  Basic line search globalization.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_PERTURBATIONPARAMETERFACTORY_HPP
-#define SFC_PERTURBATIONPARAMETERFACTORY_HPP
-
-#include <map>
-#include <string>
-
-#include "SFC_PertubationParameterFactory.hpp"
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ParameterList.hpp>
+#include "SFC_DBC.hpp"
+#include "SFC_BasicLineSearch.hpp"
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Factory for Jacobian-free perturbation parameters.
+ * \brief Constructor.
  */
-//---------------------------------------------------------------------------//
-class PerturbationParameterFactory
+BasicLineSearch::BasicLineSearch( const Teuchos::ParameterList& parameters )
 {
-  public:
+    d_max_iters = parameters.get( "Line Search Maximum Iterations" );
+    SFC_ENSURE( 0 <= d_max_iters );
+}
 
-    //! Constructor.
-    PerturbationParameterFactory();
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Set the nonlinear problem
+ */
+void BasicLineSearch::setNonlinearProblem( 
+    const Teuchos::RCP<NonlinearProblem>& nonlinear_problem )
+{
+    SFC_REQUIRE( Teuchos::nonnull(nonlinear_problem) );
+    d_nonlinear_problem = nonlinear_problem;
+}
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Given a Newton update, apply the linesearch technique and compute a
+    new update. 
+*/
+void BasicLineSearch::calculateUpdate( 
+    const Teuchos::RCP<Epetra_Vector>& newton_update,
+    Teuchos::RCP<Epetra_Vector>& global_update )
+{
+    SFC_REQUIRE( Teuchos::nonnull(d_nonlinear_problem) );
 
-    //! Destructor.
-    ~PerturbationParameterFactory()
-    { /* ... */ }
+    int epetra_error = 0.0;
+    double F_norm = 0.0;
+    double new_F_norm = 0.0;
 
-    // Creation method.
-    Teuchos::RCP<PerturbationParameter> 
-    create( const Teuchos::ParameterList& parameters );
+    epetra_error = global_update->Update( 2.0, *newton_update, 0.0 );
 
-  private:
+    Teuchos::RCP<Epetra_Vector> new_F = Teuchos::rcp( 
+        new Epetra_Vector(newton_update->Map()) );
+    Teuchos::RCP<Epetra_Vector> new_u = Teuchos::rcp( 
+        new Epetra_Vector(newton_update->Map()) );
 
-    // Perturbation enum.
-    enum SFCPerturbationType {
-        BASIC,
-        AVERAGE
-    };
+    epetra_error = d_nonlinear_problem->getF()->Norm2( &F_norm );
+    SFC_CHECK( 0 == epetra_error );
 
-    // String name to enum/integer map.
-    std::map<std::string,int> d_name_map;
-};
+    bool complete = false;
+    int num_iters = 0;
+
+    while ( !complete && num_iters < d_max_iters )
+    {
+        epetra_error = global_update->Scale( 0.5 );
+        SFC_CHECK( 0 == epetra_error );
+
+        epetra_error = new_u->Update( 1.0, *(d_nonlinear_problem->getU()),
+                                      1.0, *global_update, 0.0 );
+        SFC_CHECK( 0 == epetra_error );
+
+        d_nonlinear_problem->getModelEvaluator()->evaluate( new_u, new_F );
+
+        epetra_error = new_F->Norm2( &new_F_norm );
+
+        if ( new_F_norm < F_norm )
+        {
+            complete = true;
+        }
+
+        ++num_iters;
+    }
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
-#endif // end SFC_PERTURBATIONPARAMETERFACTORY_HPP
-
 //---------------------------------------------------------------------------//
-// end SFC_PerturbationParameterFactory.hpp
+// end SFC_BasicLineSearch.cpp
 //---------------------------------------------------------------------------//
 
