@@ -32,59 +32,50 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_NewtonSolver.hpp
+ * \file   SFC_NewtonSolver.cpp
  * \author Stuart Slattery
  * \brief  Newton's method.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_NEWTONSOLVER_HPP
-#define SFC_NEWTONSOLVER_HPP
+#include "SFC_DBC.hpp"
+#include "SFC_NewtonSolver.hpp"
+#include "SFC_JacobianOperator.hpp"
+#include "SFC_PerturbationParameterFactory.hpp"
+#include "SFC_GlobalizationFactory.hpp"
 
-#include "SFC_NonlinearProblem.hpp"
-#include "SFC_Globalization.hpp"
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ParameterList.hpp>
+#include <Epetra_Vector.h>
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Newton's method.
+ * \brief Constructor.
  */
-//---------------------------------------------------------------------------//
-class NewtonSolver
+NewtonSolver::NewtonSolver( 
+    const Teuchos::RCP<NonlinearProblem>& nonlinear_problem,
+    const Teuchos::RCP<Teuchos::ParameterList>& parameters )
+    : d_nonlinear_problem( nonlinear_problem )
+    , d_parameters( parameters )
 {
-  public:
+    SFC_REQUIRE( Teuchos::nonnull(d_nonlinear_problem) );
+    SFC_REQUIRE( Teuchos::nonnull(d_parameters) );
+}
 
-    // Constructor.
-    NewtonSolver( const Teuchos::RCP<NonlinearProblem>& nonlinear_problem,
-                  const Teuchos::RCP<Teuchos::ParameterList>& parameters );
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Solve the nonlinear problem
+ */
+void NewtonSolver::solve()
+{
 
-    // Destructor.
-    ~NewtonSolver()
-    { /* ... */ }
-
-    // Solve the nonlinear problem
-    void solve();
-
-  private:
-    
-    // Nonlinear problem.
-    Teuchos::RCP<NonlinearProblem> d_nonlinear_problem;
-
-    // Globalization.
-    Teuchos::RCP<Globalization> d_globalization;
-};
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
-#endif // end SFC_NEWTONSOLVER_HPP
-
 //---------------------------------------------------------------------------//
-// end SFC_NewtonSolver.hpp
+// end SFC_NewtonSolver.cpp
 //---------------------------------------------------------------------------//
 
