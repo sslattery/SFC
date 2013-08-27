@@ -43,16 +43,17 @@ int main(int argc, char* argv[])
 #endif
 
     // Epetra Setup.
-    int problem_size = 10;
+    int problem_size = 100;
     Epetra_Map map( problem_size, 0, comm );
     Teuchos::RCP<Epetra_Vector> u = Teuchos::rcp( new Epetra_Vector(map) );
-    u->Random();
+    u->PutScalar( 1.0 );
 
     // Model Setup.
     double a = 1.0;
     double b = 1.0;
+    double c = 0.5;
     Teuchos::RCP<SFC::ModelEvaluator> model_evaluator =
-        Teuchos::rcp( new SimpleExample::SimpleEvaluator(a,b) );
+	       Teuchos::rcp( new SimpleExample::SimpleEvaluator(a,b,c) );
 
     // Nonlinear Problem Setup.
     Teuchos::RCP<SFC::NonlinearProblem> nonlinear_problem = Teuchos::rcp( 

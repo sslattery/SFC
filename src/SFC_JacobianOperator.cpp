@@ -91,8 +91,10 @@ JacobianOperator::~JacobianOperator()
 int JacobianOperator::Apply( const Epetra_MultiVector& X, 
                              Epetra_MultiVector& Y ) const
 {
-    Teuchos::RCP<const Epetra_Vector> x = Teuchos::rcp( X(0), false );
-    Teuchos::RCP<Epetra_Vector> y = Teuchos::rcp( Y(0), false );
+    Teuchos::RCP<const Epetra_Vector> x = Teuchos::rcp(
+	new Epetra_Vector(View, X, 0) );
+    Teuchos::RCP<Epetra_Vector> y = Teuchos::rcp(
+	new Epetra_Vector(View, Y, 0) );
 
     double epsilon = d_perturbation->calculatePerturbation( 
         d_nonlinear_problem->getU(), x );
@@ -148,10 +150,9 @@ Teuchos::RCP<Epetra_CrsMatrix> JacobianOperator::getCrsMatrix() const
         {
             if ( extract_column[i] != 0.0 )
             {
-                epetra_error = 
-                    jacobian->InsertGlobalValues( 
-                        d_nonlinear_problem->getU()->Map().GID(i), 1, 
-                        &extract_column[i], &n );
+		jacobian->InsertGlobalValues( 
+		    d_nonlinear_problem->getU()->Map().GID(i), 1, 
+		    &extract_column[i], &n );
                 SFC_CHECK( 0 == epetra_error );
             }
         }
