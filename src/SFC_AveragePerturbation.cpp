@@ -32,47 +32,40 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_NonlinearProblem.cpp
+ * \file   SFC_AveragePerturbation.cpp
  * \author Stuart Slattery
- * \brief  Nonlinear problem container.
+ * \brief  Average Jacobian-free perturbation parameter.
  */
 //---------------------------------------------------------------------------//
 
-#include "SFC_NonlinearProblem.hpp"
+#include <limits>
+#include <cmath>
+
+#include "SFC_DBC.hpp"
+#include "SFC_AveragePerturbation.hpp"
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Constructor
+ * \brief Given a the nonlinear solution and the vector on which the Jacobian
+ * is acting, generate a perturbation parameter for the Jacobian-free
+ * approximation. Eq(11) in Knoll and Keyes 2004 JFNK survey paper.
  */
-NonlinearProblem::NonlinearProblem( const Teuchos::RCP<ModelEvaluator>& me,
-				    const Teuchos::RCP<Epetra_Vector>& u )
-    : d_me( me )
-    , d_u( u )
-    , d_F( Teuchos::rcp( new Epetra_Vector(u->Map())) )
+double AveragePerturbation::calculatePerturbation( 
+    const Teuchos::RCP<Epetra_Vector>& u,
+    const Teuchos::RCP<Epetra_Vector>& v )
 {
-    SFC_REQUIRE( Teuchos::nonnull(d_me) );
-    SFC_REQUIRE( Teuchos::nonnull(d_u) );
-    SFC_REQUIRE( Teuchos::nonnull(d_F) );
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Destructor
- */
-NonlinearProblem::~NonlinearProblem()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Evaluate the nonlinear model with the current solution to update the
- * nonlinear residual.
- */
-    
-void NonlinearProblem::evaluate()
-{
-    d_me->evaluate( d_u, d_F );
+    int epetra_error = 0;
+    double b = 10000 * std::numeric_limits<double>::epsilon();
+    int n = u->GlobalLength();
+    double v_norm = 0.0;
+    epetra_error = v->Norm2( &v_norm );
+    SFC_CHECK( 0 == epetra_error );
+    double u_norm = 0.0;
+    epetra_error = u->Norm1( &u_norm );
+    SFC_CHECK( 0 == epetra_error );
+    return ( b * u_norm ) / ( n * v_norm ) + b;
 }
 
 //---------------------------------------------------------------------------//
@@ -80,6 +73,6 @@ void NonlinearProblem::evaluate()
 } // end namespace SFC
 
 //---------------------------------------------------------------------------//
-// end SFC_NonlinearProblem.hpp
+// end SFC_AveragePerturbation.cpp
 //---------------------------------------------------------------------------//
 

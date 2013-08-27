@@ -32,47 +32,30 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_NonlinearProblem.cpp
+ * \file   SFC_BasicPerturbation.cpp
  * \author Stuart Slattery
- * \brief  Nonlinear problem container.
+ * \brief  Basic Jacobian-free perturbation parameter.
  */
 //---------------------------------------------------------------------------//
 
-#include "SFC_NonlinearProblem.hpp"
+#include <limits>
+#include <cmath>
+
+#include "SFC_BasicPerturbation.hpp"
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Constructor
+ * \brief Given a the nonlinear solution and the vector on which the Jacobian
+ * is acting, generate a perturbation parameter for the Jacobian-free
+ * approximation.   
  */
-NonlinearProblem::NonlinearProblem( const Teuchos::RCP<ModelEvaluator>& me,
-				    const Teuchos::RCP<Epetra_Vector>& u )
-    : d_me( me )
-    , d_u( u )
-    , d_F( Teuchos::rcp( new Epetra_Vector(u->Map())) )
+double BasicPerturbation::calculatePerturbation( 
+    const Teuchos::RCP<Epetra_Vector>& u,
+    const Teuchos::RCP<Epetra_Vector>& v )
 {
-    SFC_REQUIRE( Teuchos::nonnull(d_me) );
-    SFC_REQUIRE( Teuchos::nonnull(d_u) );
-    SFC_REQUIRE( Teuchos::nonnull(d_F) );
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Destructor
- */
-NonlinearProblem::~NonlinearProblem()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Evaluate the nonlinear model with the current solution to update the
- * nonlinear residual.
- */
-    
-void NonlinearProblem::evaluate()
-{
-    d_me->evaluate( d_u, d_F );
+    return 2.0 * std::pow( std::numeric_limits<double>::epsilon(), 0.5 );
 }
 
 //---------------------------------------------------------------------------//
@@ -80,6 +63,6 @@ void NonlinearProblem::evaluate()
 } // end namespace SFC
 
 //---------------------------------------------------------------------------//
-// end SFC_NonlinearProblem.hpp
+// end SFC_BasicPerturbation.cpp
 //---------------------------------------------------------------------------//
 

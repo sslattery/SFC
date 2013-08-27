@@ -22,13 +22,18 @@ SET(HEADERS ${HEADERS}
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
+  SFC_AveragePerturbation.hpp
+  SFC_BasicPerturbation.hpp
   SFC_DBC.hpp
   SFC_JacobianOperator.hpp
   SFC_ModelEvaluator.hpp
   SFC_NonlinearProblem.hpp
+  SFC_PerturbationParameter.hpp
   ) 
 
 APPEND_SET(SOURCES
+  SFC_AveragePerturbation.cpp
+  SFC_BasicPerturbation.cpp
   SFC_DBC.cpp
   SFC_JacobianOperator.cpp
   SFC_NonlinearProblem.cpp

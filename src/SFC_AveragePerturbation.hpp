@@ -32,54 +32,55 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_NonlinearProblem.cpp
+ * \file   SFC_AveragePerturbation.hpp
  * \author Stuart Slattery
- * \brief  Nonlinear problem container.
+ * \brief  Average Jacobian-free perturbation parameter.
  */
 //---------------------------------------------------------------------------//
 
-#include "SFC_NonlinearProblem.hpp"
+#ifndef SFC_AVERAGEPERTURBATION_HPP
+#define SFC_AVERAGEPERTURBATION_HPP
+
+#include "SFC_PerturbationParameter.hpp"
+
+#include <Teuchos_RCP.hpp>
+
+#include <Epetra_Vector.h>
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Constructor
+ * \brief Average Jacobian-free perturbation parameter for single component
+ * problems. 
  */
-NonlinearProblem::NonlinearProblem( const Teuchos::RCP<ModelEvaluator>& me,
-				    const Teuchos::RCP<Epetra_Vector>& u )
-    : d_me( me )
-    , d_u( u )
-    , d_F( Teuchos::rcp( new Epetra_Vector(u->Map())) )
-{
-    SFC_REQUIRE( Teuchos::nonnull(d_me) );
-    SFC_REQUIRE( Teuchos::nonnull(d_u) );
-    SFC_REQUIRE( Teuchos::nonnull(d_F) );
-}
-
 //---------------------------------------------------------------------------//
-/*!
- * \brief Destructor
- */
-NonlinearProblem::~NonlinearProblem()
-{ /* ... */ }
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Evaluate the nonlinear model with the current solution to update the
- * nonlinear residual.
- */
-    
-void NonlinearProblem::evaluate()
+class AveragePerturbation : public PerturbationParameter
 {
-    d_me->evaluate( d_u, d_F );
-}
+  public:
+
+    //! Constructor.
+    AveragePerturbation()
+    { /* ... */ }
+
+    //! Destructor.
+    ~AveragePerturbation()
+    { /* ... */ }
+
+    //! Given a the nonlinear solution and the vector on which the Jacobian is
+    //! acting, generate a perturbation parameter for the Jacobian-free
+    //! approximation.
+    double calculatePerturbation( const Teuchos::RCP<Epetra_Vector>& u,
+                                  const Teuchos::RCP<Epetra_Vector>& v );
+};
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
+#endif // end SFC_AVERAGEPERTURBATION_HPP
+
 //---------------------------------------------------------------------------//
-// end SFC_NonlinearProblem.hpp
+// end SFC_AveragePerturbation.hpp
 //---------------------------------------------------------------------------//
 

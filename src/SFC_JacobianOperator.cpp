@@ -38,8 +38,14 @@
  */
 //---------------------------------------------------------------------------//
 
+#include <algorithm>
+
 #include "SFC_DBC.hpp"
 #include "SFC_JacobianOperator.hpp"
+
+#include <Teuchos_ArrayRCP.hpp>
+
+#include <Epetra_RowMatrixTransposer.h>
 
 namespace SFC
 {
@@ -51,10 +57,10 @@ JacobianOperator::JacobianOperator(
     const Teuchos::RCP<NonlinearProblem>& nonlinear_problem,
     const double epsilon )
     : d_nonlinear_problem( nonlinear_problem )
-    , d_epsilon( epsilon )
-{ 
+    , d_perturbation( perturbation )
+{
     SFC_REQUIRE( Teuchos::nonull(d_nonlinear_problem) );
-    SFC_REQUIRE( 0.0 < epsilon );
+    SFC_REQUIRE( Teuchos::nonnull(d_perturbation) );
 }
 
 //---------------------------------------------------------------------------//
@@ -66,13 +72,16 @@ JacobianOperator::~JacobianOperator()
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Jacobian-free Apply operation. SFC only operates on vectors.
+ * \brief Jacobian-free Apply operation.
  */
 int JacobianOperator::Apply( const Epetra_MultiVector& X, 
                              Epetra_MultiVector& Y ) const
 {
     Teuchos::RCP<Epetra_Vector> x = Teuchos::rcp( X(0), false );
     Teuchos::RCP<Epetra_Vector> y = Teuchos::rcp( Y(0), false );
+
+    double epsilon = d_perturbation->calculationPertubation( 
+        d_nonlinear_problem->getU(), x );
 
     Teuchos::RCP<Epetra_Vector> perturbed_F = 
 	Teuchos::rcp( new Epetra_Vector(x->Map()) );
@@ -104,7 +113,38 @@ int JacobianOperator::Apply( const Epetra_MultiVector& X,
  */
 Teuchos::RCP<Epetra_CrsMatrix> JacobianOperator::getCrsMatrix() const
 {
+    int epetra_error = 0;
+    int global_length = d_nonlinear_problem->getU()->GlobalLength();
+    int local_length =  d_nonlinear_problem->getU()->MyLength();
+    Epetra_Vector column_basis( d_nonlinear_problem->getU()->Map() );
+    Epetra_Vector extract_column( d_nonlinear_problem->getU()->Map() );
+    Teuchos::RCP<Epetra_CrsMatrix> jacobian = Teuchos::rcp( 
+        new Epetra_CrsMatrix(Copy,d_nonlinear_problem->getU()->Map(),0) );
 
+    for ( int n = 0; n < global_length; ++n )
+    {
+        epetra_error = column_basis.PutScalar( 0.0 );
+        SFC_CHECK( 0 == epetra_error );
+        column_basis[n] = 1.0;
+
+        epetra_error = Apply( column_basis, extract_column );
+        SFC_CHECK( 0 == epetra_error );
+
+        for ( int i = 0; i < local_length; ++i )
+        {
+            if ( extract_column[i] != 0.0 )
+            {
+                epetra_error = jacobian->InsertGlobalValues( 
+                    d_nonlinear_problem->getU->Map()->GID(i), 1, 
+                    &extract_column[i], &n );
+                SFC_CHECK( 0 == epetra_error );
+            }
+        }
+    }
+
+    jacobian->FillComplete();
+
+    return jacobian;
 }
 
 //---------------------------------------------------------------------------//

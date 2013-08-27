@@ -69,6 +69,10 @@ class ModelEvaluator
                            Teuchos::RCP<Epetra_Vector>& F ) = 0;
 };
 
+//---------------------------------------------------------------------------//
+
+} // end namespace SFC
+
 #endif // end SFC_MODELEVALUATOR_HPP
 
 //---------------------------------------------------------------------------//

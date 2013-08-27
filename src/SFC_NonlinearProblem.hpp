@@ -93,6 +93,8 @@ class NonlinearProblem
     Teuchos::RCP<Epetra_Vector> d_u;
 };
 
+} // end namespace SFC
+
 #endif // end SFC_NONLINEARPROBLEM_HPP
 
 //---------------------------------------------------------------------------//

@@ -32,54 +32,51 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_NonlinearProblem.cpp
+ * \file   SFC_PerturbationParameter.hpp
  * \author Stuart Slattery
- * \brief  Nonlinear problem container.
+ * \brief  Interface definition for Jacobian-free perturbation parameters.
  */
 //---------------------------------------------------------------------------//
 
-#include "SFC_NonlinearProblem.hpp"
+#ifndef SFC_PERTURBATIONPARAMETER_HPP
+#define SFC_PERTURBATIONPARAMETER_HPP
+
+#include <Teuchos_RCP.hpp>
+
+#include <Epetra_Vector.h>
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Constructor
+ * \brief Base class for Jacobian-free perturbation parameters.
  */
-NonlinearProblem::NonlinearProblem( const Teuchos::RCP<ModelEvaluator>& me,
-				    const Teuchos::RCP<Epetra_Vector>& u )
-    : d_me( me )
-    , d_u( u )
-    , d_F( Teuchos::rcp( new Epetra_Vector(u->Map())) )
+//---------------------------------------------------------------------------//
+class PerturbationParameter
 {
-    SFC_REQUIRE( Teuchos::nonnull(d_me) );
-    SFC_REQUIRE( Teuchos::nonnull(d_u) );
-    SFC_REQUIRE( Teuchos::nonnull(d_F) );
-}
+  public:
 
-//---------------------------------------------------------------------------//
-/*!
- * \brief Destructor
- */
-NonlinearProblem::~NonlinearProblem()
-{ /* ... */ }
+    //! Constructor.
+    PerturbationParameter()
+    { /* ... */ }
 
-//---------------------------------------------------------------------------//
-/*!
- * \brief Evaluate the nonlinear model with the current solution to update the
- * nonlinear residual.
- */
-    
-void NonlinearProblem::evaluate()
-{
-    d_me->evaluate( d_u, d_F );
-}
+    //! Destructor.
+    virtual ~PerturbationParameter()
+    { /* ... */ }
+
+    //! Given a the nonlinear solution and the vector on which the Jacobian is
+    //! acting, generate a perturbation parameter for the Jacobian-free
+    //! approximation.
+    virtual double calculatePerturbation( 
+        const Teuchos::RCP<Epetra_Vector>& u,
+        const Teuchos::RCP<Epetra_Vector>& v ) = 0;
+};
 
 //---------------------------------------------------------------------------//
 
-} // end namespace SFC
+#endif // end SFC_PERTURBATIONPARAMETER_HPP
 
 //---------------------------------------------------------------------------//
-// end SFC_NonlinearProblem.hpp
+// end SFC_PerturbationParameter.hpp
 //---------------------------------------------------------------------------//
 

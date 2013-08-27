@@ -42,6 +42,7 @@
 #define SFC_JACOBIANOPERATOR_HPP
 
 #include "SFC_NonlinearProblem.hpp"
+#include "SFC_PerturbationParameter.hpp"
 
 #include <Teuchos_RCP.hpp>
 
@@ -61,47 +62,51 @@ class JacobianOperator : public Epetra_Operator
 
     // Constructor.
     JacobianOperator( const Teuchos::RCP<NonlinearProblem>& nonlinear_problem,
-		      const double epsilon );
+		      const Teuchos::RCP<PerturbationParameter>& perturbation );
 
     // Destructor.
     ~JacobianOperator();
 
     //@{
     //! Epetra_Operator interface.
-    // Set to false for not supporting the transpose.
-    int SetUseTranspose(bool UseTranspose) { return 0; }
+    //! Set the transpose state of the operator. False at construction.
+    int SetUseTranspose( bool UseTranspose ) 
+    { return 0; }
 
     // Jacobian-free Apply operation.
     int Apply( const Epetra_MultiVector& X, Epetra_MultiVector& Y ) const;
 
-    // Inverse apply operation.
-    int ApplyInverse( const Epetra_MultiVector& X, Epetra_MultiVector& Y ) const;
-    { return 0; }
+    // Inverse apply operation. This operator is not supported
+    int ApplyInverse( const Epetra_MultiVector& X, 
+                      Epetra_MultiVector& Y ) const;
+    { return -1; }
 
-    // Get the infinity norm.
+    //! Get the infinity norm.
     double NormInf() const { return 0.0; }
 
-    // Returns a character string describing the operator
+    //! Returns a character string describing the operator
     const char * Label() const { return std::string("SFC Jacobian").c_str(); }
 
-    // Returns the current UseTranspose setting.
+    //! Returns the current UseTranspose setting.
     bool UseTranspose() const { return false; }
 
-    // Returns true if the \e this object can provide an approximate Inf-norm,
-    // false otherwise.
+    //! Returns true if the \e this object can provide an approximate
+    //! Inf-norm, false otherwise.
     bool HasNormInf() const { return false; }
 
-    // Returns a pointer to the Epetra_Comm communicator associated with this
-    // operator.
+    //! Returns a pointer to the Epetra_Comm communicator associated with this
+    //! operator.
     const Epetra_Comm & Comm() const { return d_u->Comm(); }
 
-    // Returns the Epetra_Map object associated with the domain of this
-    // operator.
-    const Epetra_Map & OperatorDomainMap() const { return d_u->Map(); }
+    //! Returns the Epetra_Map object associated with the domain of this
+    //! operator.
+    const Epetra_Map & OperatorDomainMap() const 
+    { return d_nonlinear_problem->getF()->Map(); }
 
-    // Returns the Epetra_Map object associated with the range of this
-    // operator.
-    const Epetra_Map & OperatorRangeMap() const { return d_u->Map(); }
+    //! Returns the Epetra_Map object associated with the range of this
+    //! operator.
+    const Epetra_Map & OperatorRangeMap() const 
+    { return d_nonlinear_problem->getU()->Map(); }
     //@}
 
     // Get the fully formed operator to build preconditioners.
@@ -113,8 +118,12 @@ class JacobianOperator : public Epetra_Operator
     Teuchos::RCP<NonlinearProblem> d_nonlinear_problem;
 
     // Jacobian-free perturbation parameter.
-    double d_epsilon;
+    Teuchos::RCP<PerturbationParameter> d_perturbation;
 };
+
+//---------------------------------------------------------------------------//
+
+} // end namespace SFC
 
 #endif // end SFC_JACOBIANOPERATOR_HPP
 
