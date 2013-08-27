@@ -67,7 +67,7 @@ void DefaultGlobalization::calculateUpdate(
     const Teuchos::RCP<const Epetra_Vector>& newton_update,
     Teuchos::RCP<Epetra_Vector>& global_update )
 {
-    global_update = newton_update;
+    global_update = Teuchos::rcp_const_cast<Epetra_Vector>(newton_update);
 }
 
 //---------------------------------------------------------------------------//

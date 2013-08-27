@@ -21,6 +21,7 @@
 
 #include <Epetra_SerialComm.h>
 #include <Epetra_Vector.h>
+#include <Epetra_Map.h>
 
 //---------------------------------------------------------------------------//
 // Main function driver for the coupled Wave/Damper problem.
@@ -43,23 +44,23 @@ int main(int argc, char* argv[])
     Teuchos::RCP<SFC::NonlinearProblem> nonlinear_problem = Teuchos::rcp( 
         new SFC::NonlinearProblem(model_evaluator, u) );
 
-    // Nonlinear Solver Parameters.
+    // Nonlinear Solver Parameters
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    parameters.set<int>( "Newton Maximum Iterations", 100 );
-    parameters.set<double>( "Newton Convergence Tolerance", 100 );
+    parameters->set<int>( "Newton Maximum Iterations", 100 );
+    parameters->set<double>( "Newton Convergence Tolerance", 100 );
 
-    // Linear solver parameters.
-    parameters.set<int>( "GMRES Maximum Iterations", 100 );
+    // Linear solver parameters
+    parameters->set<int>( "GMRES Maximum Iterations", 100 );
 
-    // Forcing term parameters.
-    parameters.set<std::string>( "Forcing Term Type", "Constant" );
-    parameters.set<double>( "Constant Forcing Term", 1.0e-4 );
+    // Forcing term parameters
+    parameters->set<std::string>( "Forcing Term Type", "Constant" );
+    parameters->set<double>( "Constant Forcing Term", 1.0e-4 );
 
-    // Globalization parameters.
-    parameters.set<std::string>( "Globalization Type", "None" );
+    // Globalization parameters
+    parameters->set<std::string>( "Globalization Type", "None" );
 
-    // Perturbation parameters.
-    parameters.set<std::string>( "Perturbation Type", "Basic" );
+    // Perturbation parameters
+    parameters->set<std::string>( "Perturbation Type", "Basic" );
 
     // Build the Newton solver and solve the nonlinear problem.
     SFC::NewtonSolver nonlinear_solver( nonlinear_problem, parameters );

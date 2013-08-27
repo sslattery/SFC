@@ -41,6 +41,7 @@
 #ifndef SFC_CONSTANTFORCINGTERM_HPP
 #define SFC_CONSTANTFORCINGTERM_HPP
 
+#include "SFC_ForcingTerm.hpp"
 #include "SFC_NonlinearProblem.hpp"
 
 #include <Teuchos_RCP.hpp>

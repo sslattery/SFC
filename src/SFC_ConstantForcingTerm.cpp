@@ -38,6 +38,7 @@
  */
 //---------------------------------------------------------------------------//
 
+#include "SFC_DBC.hpp"
 #include "SFC_ConstantForcingTerm.hpp"
 
 namespace SFC
@@ -52,10 +53,10 @@ ConstantForcingTerm::ConstantForcingTerm(
 {
     if ( parameters.isParameter("Constant Forcing Term") )
     {
-        d_forcing_term = parameters.get( "Constant Forcing Term" );
+        d_forcing_term = parameters.get<double>( "Constant Forcing Term" );
     }
 
-    MCLS_ENSURE( 0.0 < d_forcing_term );
+    SFC_ENSURE( 0.0 < d_forcing_term );
 }
 
 //---------------------------------------------------------------------------//
