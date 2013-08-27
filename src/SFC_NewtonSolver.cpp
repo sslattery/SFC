@@ -37,7 +37,7 @@
  * \brief  Newton's method.
  */
 //---------------------------------------------------------------------------//
-
+#include <Teuchos_ArrayRCP.hpp>
 #include <iostream>
 
 #include "SFC_DBC.hpp"
@@ -113,12 +113,16 @@ void NewtonSolver::solve()
     AztecOO gmres_solver( linear_problem );
     aztec_error = gmres_solver.SetAztecOption( AZ_solver, AZ_gmres );
     SFC_CHECK( 0 == aztec_error );
+    aztec_error = gmres_solver.SetAztecOption( AZ_precond, AZ_none );
+    SFC_CHECK( 0 == aztec_error );
+    aztec_error = gmres_solver.SetAztecOption( AZ_conv, AZ_rhs );
+    SFC_CHECK( 0 == aztec_error );
     int max_gmres_iters = d_parameters->get<int>( "GMRES Maximum Iterations" );
 
     // Get Newton solver parameters.
     int max_newton_iters = d_parameters->get<int>( "Newton Maximum Iterations" );
     double newton_tolerance = 
-        d_parameters->get<int>( "Newton Convergence Tolerance" );
+        d_parameters->get<double>( "Newton Convergence Tolerance" );
 
     // Evaluate the initial nonlinear residual and get the preliminary norms.
     int epetra_error = 0.0;

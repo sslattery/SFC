@@ -19,26 +19,40 @@
 #include <Teuchos_ParameterList.hpp>
 #include <Teuchos_ArrayView.hpp>
 
-#include <Epetra_SerialComm.h>
+#include <Epetra_Comm.h>
 #include <Epetra_Vector.h>
 #include <Epetra_Map.h>
+
+#ifdef HAVE_MPI
+#include <mpi.h>
+#include <Epetra_MpiComm.h>
+#else
+#include <Epetra_SerialComm.h>
+#endif
 
 //---------------------------------------------------------------------------//
 // Main function driver for the coupled Wave/Damper problem.
 int main(int argc, char* argv[])
 {
+    // Parallel setup.
+#ifdef HAVE_MPI
+    MPI_Init( &argc, &argv );
+    Epetra_MpiComm comm( MPI_COMM_WORLD );
+#else
+    Epetra_SerialComm Comm;
+#endif
+
     // Epetra Setup.
-    Epetra_SerialComm comm;
-    int problem_size = 1;
+    int problem_size = 10;
     Epetra_Map map( problem_size, 0, comm );
     Teuchos::RCP<Epetra_Vector> u = Teuchos::rcp( new Epetra_Vector(map) );
+    u->Random();
 
     // Model Setup.
     double a = 1.0;
     double b = 1.0;
-    double c = 0.0;
     Teuchos::RCP<SFC::ModelEvaluator> model_evaluator =
-        Teuchos::rcp( new SimpleExample::SimpleEvaluator(a,b,c) );
+        Teuchos::rcp( new SimpleExample::SimpleEvaluator(a,b) );
 
     // Nonlinear Problem Setup.
     Teuchos::RCP<SFC::NonlinearProblem> nonlinear_problem = Teuchos::rcp( 
@@ -47,7 +61,7 @@ int main(int argc, char* argv[])
     // Nonlinear Solver Parameters
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     parameters->set<int>( "Newton Maximum Iterations", 100 );
-    parameters->set<double>( "Newton Convergence Tolerance", 100 );
+    parameters->set<double>( "Newton Convergence Tolerance", 1.0e-12 );
 
     // Linear solver parameters
     parameters->set<int>( "GMRES Maximum Iterations", 100 );

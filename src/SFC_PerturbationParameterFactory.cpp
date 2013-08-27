@@ -62,7 +62,7 @@ PerturbationParameterFactory::PerturbationParameterFactory()
 Teuchos::RCP<PerturbationParameter> 
 PerturbationParameterFactory::create( const Teuchos::ParameterList& parameters )
 {
-    std::string name = parameters.get<std::string>( "Pertubation Type" );
+    std::string name = parameters.get<std::string>( "Perturbation Type" );
 
     Teuchos::RCP<PerturbationParameter> perturbation;
 

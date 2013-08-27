@@ -50,10 +50,9 @@ namespace SimpleExample
 /*!
  * \brief Constructor.
  */
-SimpleEvaluator::SimpleEvaluator( const double a, const double b, const double c )
+SimpleEvaluator::SimpleEvaluator( const double a, const double b )
     : d_a( a )
     , d_b( b )
-    , d_c( c )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
@@ -67,10 +66,16 @@ void SimpleEvaluator::evaluate( const Teuchos::RCP<Epetra_Vector>& u,
     SFC_REQUIRE( Teuchos::nonnull(u) );
     SFC_REQUIRE( Teuchos::nonnull(F) );
 
-    for ( int i = 0; i < u->MyLength(); ++i )
+    // Central points.
+    for ( int i = 1; i < u->MyLength()-1; ++i )
     {
-        (*F)[i] = d_a * std::pow( (*u)[i], d_b ) + d_c;
+        (*F)[i] = d_a * ( (*u)[i+1] - 2*(*u)[i] + (*u)[i-1] ) - d_b;
     }
+
+    // Boundary points - vacuum conditions.
+    (*F)[0] = d_a * ( (*u)[1] - 2*(*u)[0] ) - d_b;
+    (*F)[u->MyLength()-1] = 
+        d_a * ( - 2*(*u)[u->MyLength()-1] + (*u)[u->MyLength()-2] ) - d_b;
 }
 
 //---------------------------------------------------------------------------//

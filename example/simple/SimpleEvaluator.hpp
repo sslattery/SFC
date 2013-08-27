@@ -51,7 +51,7 @@ namespace SimpleExample
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Simple model evaluator: a*u^b + c = 0.
+ * \brief Simple Laplace equation model evaluator: a * (du^2)(d^2x) - b = 0
  */
 //---------------------------------------------------------------------------//
 class SimpleEvaluator : public SFC::ModelEvaluator
@@ -59,7 +59,7 @@ class SimpleEvaluator : public SFC::ModelEvaluator
   public:
 
     // Constructor.
-    SimpleEvaluator( const double a, const double b, const double c );
+    SimpleEvaluator( const double a, const double b );
 
     //! Destructor.
     ~SimpleEvaluator()
@@ -73,7 +73,6 @@ class SimpleEvaluator : public SFC::ModelEvaluator
 
     double d_a;
     double d_b;
-    double d_c;
 };
 
 //---------------------------------------------------------------------------//

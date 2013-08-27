@@ -157,7 +157,8 @@ Teuchos::RCP<Epetra_CrsMatrix> JacobianOperator::getCrsMatrix() const
         }
     }
 
-    jacobian->FillComplete();
+    epetra_error = jacobian->FillComplete();
+    SFC_CHECK( 0 == epetra_error );
 
     return jacobian;
 }
