@@ -32,18 +32,16 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_GlobalizationFactory.hpp
+ * \file   SFC_NewtonSolver.hpp
  * \author Stuart Slattery
- * \brief  Factory for globalization techniques.
+ * \brief  Newton's method.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_GLOBALIZATIONFACTORY_HPP
-#define SFC_GLOBALIZATIONFACTORY_HPP
+#ifndef SFC_NEWTONSOLVER_HPP
+#define SFC_NEWTONSOLVER_HPP
 
-#include <map>
-#include <string>
-
+#include "SFC_NonlinearProblem.hpp"
 #include "SFC_Globalization.hpp"
 
 #include <Teuchos_RCP.hpp>
@@ -53,43 +51,39 @@ namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Factory for globalization techniques.
+ * \brief Newton's method.
  */
 //---------------------------------------------------------------------------//
-class GlobalizationFactory
+class NewtonSolver
 {
   public:
 
-    //! Constructor.
-    GlobalizationFactory();
+    // Constructor.
+    NewtonSolver( const Teuchos::RCP<NonlinearProblem>& d_nonlinear_problem,
+                  const Teuchos::ParameterList& parameters );
 
-    //! Destructor.
-    ~GlobalizationFactory()
-    { /* ... */ }
+    // Destructor.
+    ~NewtonSolver();
 
-    // Creation method.
-    Teuchos::RCP<Globalization> 
-    create( const Teuchos::ParameterList& parameters );
+    // Solve the nonlinear problem
+    void solve();
 
   private:
+    
+    // Nonlinear problem.
+    Teuchos::RCP<NonlinearProblem> d_nonlinear_problem;
 
-    // Perturbation enum.
-    enum SFCPerturbationType {
-        DEFAULT,
-        BASIC_LINE_SEARCH
-    };
-
-    // String name to enum/integer map.
-    std::map<std::string,int> d_name_map;
+    // Globalization.
+    Teuchos::RCP<Globalization> d_globalization;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
-#endif // end SFC_GLOBALIZATIONFACTORY_HPP
+#endif // end SFC_NEWTONSOLVER_HPP
 
 //---------------------------------------------------------------------------//
-// end SFC_GlobalizationFactory.hpp
+// end SFC_NewtonSolver.hpp
 //---------------------------------------------------------------------------//
 

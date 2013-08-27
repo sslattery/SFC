@@ -32,64 +32,49 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_GlobalizationFactory.hpp
+ * \file   SFC_DefaultGlobalization.cpp
  * \author Stuart Slattery
- * \brief  Factory for globalization techniques.
+ * \brief  Default globalization.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_GLOBALIZATIONFACTORY_HPP
-#define SFC_GLOBALIZATIONFACTORY_HPP
-
-#include <map>
-#include <string>
-
-#include "SFC_Globalization.hpp"
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ParameterList.hpp>
+#include "SFC_DBC.hpp"
+#include "SFC_DefaultGlobalization.hpp"
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Factory for globalization techniques.
+ * \brief Constructor.
  */
+DefaultGlobalization::DefaultGlobalization()
+{ /* ... */ }
+
 //---------------------------------------------------------------------------//
-class GlobalizationFactory
+/*!
+ * \brief Set the nonlinear problem
+ */
+void DefaultGlobalization::setNonlinearProblem( 
+    const Teuchos::RCP<NonlinearProblem>& nonlinear_problem )
+{ /* ... */ }
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Given a Newton update simply return it as this does no
+*globalization. 
+*/
+void DefaultGlobalization::calculateUpdate( 
+    const Teuchos::RCP<Epetra_Vector>& newton_update,
+    Teuchos::RCP<Epetra_Vector>& global_update )
 {
-  public:
-
-    //! Constructor.
-    GlobalizationFactory();
-
-    //! Destructor.
-    ~GlobalizationFactory()
-    { /* ... */ }
-
-    // Creation method.
-    Teuchos::RCP<Globalization> 
-    create( const Teuchos::ParameterList& parameters );
-
-  private:
-
-    // Perturbation enum.
-    enum SFCPerturbationType {
-        DEFAULT,
-        BASIC_LINE_SEARCH
-    };
-
-    // String name to enum/integer map.
-    std::map<std::string,int> d_name_map;
-};
+    global_update = newton_update;
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
-#endif // end SFC_GLOBALIZATIONFACTORY_HPP
-
 //---------------------------------------------------------------------------//
-// end SFC_GlobalizationFactory.hpp
+// end SFC_DefaultGlobalization.cpp
 //---------------------------------------------------------------------------//
 

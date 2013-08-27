@@ -53,7 +53,7 @@ namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Base class for Jacobian-free perturbation parameters.
+ * \brief Basic line search method for globalization.
  */
 //---------------------------------------------------------------------------//
 class BasicLineSearch

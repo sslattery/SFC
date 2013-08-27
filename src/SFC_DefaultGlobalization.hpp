@@ -32,64 +32,59 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_GlobalizationFactory.hpp
+ * \file   SFC_DefaultGlobalization.hpp
  * \author Stuart Slattery
- * \brief  Factory for globalization techniques.
+ * \brief  Default globalization.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_GLOBALIZATIONFACTORY_HPP
-#define SFC_GLOBALIZATIONFACTORY_HPP
-
-#include <map>
-#include <string>
+#ifndef SFC_DEFAULTGLOBALIZATION_HPP
+#define SFC_DEFAULTGLOBALIZATION_HPP
 
 #include "SFC_Globalization.hpp"
+#include "SFC_NonlinearProblem.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
+
+#include <Epetra_Vector.h>
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Factory for globalization techniques.
+ * \brief Default globalization. This object does not globalization, the
+ * global update is simply set to the input newton update.
  */
 //---------------------------------------------------------------------------//
-class GlobalizationFactory
+class DefaultGlobalization
 {
   public:
 
     //! Constructor.
-    GlobalizationFactory();
+    DefaultGlobalization();
 
     //! Destructor.
-    ~GlobalizationFactory()
+    ~DefaultGlobalization()
     { /* ... */ }
 
-    // Creation method.
-    Teuchos::RCP<Globalization> 
-    create( const Teuchos::ParameterList& parameters );
+    //! Set the nonlinear problem.
+    void setNonlinearProblem( 
+        const Teuchos::RCP<NonlinearProblem>& nonlinear_problem );
 
-  private:
-
-    // Perturbation enum.
-    enum SFCPerturbationType {
-        DEFAULT,
-        BASIC_LINE_SEARCH
-    };
-
-    // String name to enum/integer map.
-    std::map<std::string,int> d_name_map;
+    //! Given a Newton update, apply the linesearch technique and compute a
+    //! new update.
+    void calculateUpdate( const Teuchos::RCP<Epetra_Vector>& newton_update,
+                          Teuchos::RCP<Epetra_Vector>& global_update );
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
-#endif // end SFC_GLOBALIZATIONFACTORY_HPP
+#endif // end SFC_DEFAULTGLOBALIZATION_HPP
 
 //---------------------------------------------------------------------------//
-// end SFC_GlobalizationFactory.hpp
+// end SFC_DefaultGlobalization.hpp
 //---------------------------------------------------------------------------//
 

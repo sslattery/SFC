@@ -81,7 +81,7 @@ PerturbationParameterFactory::create( const Teuchos::ParameterList& parameters )
 
         default:
             throw Assertion( "Pertubation type not supported!" );
-            break
+            break;
     }
 
     SFC_ENSURE( Teuchos::nonnull(perturbation) );

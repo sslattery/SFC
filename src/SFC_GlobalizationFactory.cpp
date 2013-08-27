@@ -40,6 +40,7 @@
 
 #include "SFC_DBC.hpp"
 #include "SFC_GlobalizationFactory.hpp"
+#include "SFC_DefaultGlobalization.hpp"
 #include "SFC_BasicLineSearch.hpp"
 
 namespace SFC
@@ -50,6 +51,7 @@ namespace SFC
  */
 GlobalizationFactory::GlobalizationFactory()
 {
+    d_name_map["None"] = DEFAULT;
     d_name_map["Basic Line Search"] = BASIC_LINE_SEARCH;
 }
 
@@ -60,7 +62,15 @@ GlobalizationFactory::GlobalizationFactory()
 Teuchos::RCP<Globalization> 
 GlobalizationFactory::create( const Teuchos::ParameterList& parameters )
 {
-    std::string name = parameters.get( "Globalization Type" );
+    std::string name;
+    if ( parameters.isParameter("Globalization Type") )
+    {
+        name = parameters.get( "Globalization Type" );
+    }
+    else
+    {
+        name = "None";
+    }
 
     Teuchos::RCP<Globalization> globalization;
 
@@ -69,13 +79,17 @@ GlobalizationFactory::create( const Teuchos::ParameterList& parameters )
 
     switch( id->second )
     {
+        case DEFAULT
+            globalization = Teuchos::rcp( new DefaultGlobalization() );
+            break
+
         case BASIC_LINE_SEARCH:
             globalization = Teuchos::rcp( new BasicLineSearch(parameters) );
             break;
 
         default:
-            throw Assertion( "Globalization type not supported!" );
-            break
+            globalization = Teuchos::rcp( new DefaultGlobalization() );
+            break;
     }
 
     SFC_ENSURE( Teuchos::nonnull(globalization) );
