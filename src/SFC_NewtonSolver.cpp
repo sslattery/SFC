@@ -108,7 +108,7 @@ void NewtonSolver::solve()
                                          newton_update.getRawPtr(),
                                          newton_rhs.getRawPtr() );
 
-    // Build GMRES solver.
+    // Build the GMRES solver.
     int aztec_error = 0;
     AztecOO gmres_solver( linear_problem );
     aztec_error = gmres_solver.SetAztecOption( AZ_solver, AZ_gmres );
@@ -117,7 +117,8 @@ void NewtonSolver::solve()
 
     // Get Newton solver parameters.
     int max_newton_iters = d_parameters->get( "Newton Maximum Iterations" );
-    int newton_tolerance = d_parameters->get( "Newton Convergence Tolerance" );
+    double newton_tolerance = 
+        d_parameters->get( "Newton Convergence Tolerance" );
 
     // Evaluate the initial nonlinear residual and get the preliminary norms.
     d_nonlinear_problem->evaluate();
@@ -158,7 +159,7 @@ void NewtonSolver::solve()
 
         // Output.
         std::cout << "Newton Iteration " << num_iters <<
-                  << ": ||F||_2 / ||F||_0 = " << norm_F_k / norm_F_0 
+                  << ": ||F||^k / ||F||^0 = " << norm_F_k / norm_F_0 
                   << std::endl;
     }
 }

@@ -33,6 +33,7 @@ APPEND_SET(HEADERS
   SFC_GlobalizationFactory.hpp
   SFC_JacobianOperator.hpp
   SFC_ModelEvaluator.hpp
+  SFC_NewtonSolver.hpp
   SFC_NonlinearProblem.hpp
   SFC_PerturbationParameter.hpp
   SFC_PerturbationParameterFactory.hpp
@@ -47,6 +48,7 @@ APPEND_SET(SOURCES
   SFC_ForcingTermFactory.cpp
   SFC_GlobalizationFactory.cpp
   SFC_JacobianOperator.cpp
+  SFC_NewtonSolver.cpp
   SFC_NonlinearProblem.cpp
   SFC_PerturbationParameterFactory.cpp
   )
