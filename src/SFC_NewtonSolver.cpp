@@ -141,6 +141,8 @@ void NewtonSolver::solve()
     while ( !converged && num_iters < max_newton_iters )
     {
         // Setup the linear model.
+        epetra_error = newton_update->PutScalar( 0.0 );
+        SFC_CHECK( 0 == epetra_error );
         epetra_error = 
             newton_rhs->Update( -1.0, *(d_nonlinear_problem->getF()), 0.0 );
         SFC_CHECK( 0 == epetra_error );
@@ -158,14 +160,20 @@ void NewtonSolver::solve()
             d_nonlinear_problem->getU()->Update( 1.0, *global_update, 1.0 );
         SFC_CHECK( 0 == epetra_error );
 
+	// Update the nonlinear residual.
+	d_nonlinear_problem->evaluate();
+
         // Check for convergence of the nonlinear residual.
+	epetra_error = d_nonlinear_problem->getF()->Norm2( &norm_F_k );
+	SFC_CHECK( 0 == epetra_error );
         converged = ( (norm_F_k / norm_F_0) < newton_tolerance );
         ++num_iters;
 
         // Output.
-        std::cout << "Newton Iteration " << num_iters
+        std::cout << std::endl 
+		  << "Newton Iteration " << num_iters
                   << ": ||F||^k / ||F||^0 = " << norm_F_k / norm_F_0 
-                  << std::endl;
+                  << std::endl << std::endl;
     }
 }
 

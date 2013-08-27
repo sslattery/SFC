@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
     // Nonlinear Solver Parameters
     Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
     parameters->set<int>( "Newton Maximum Iterations", 100 );
-    parameters->set<double>( "Newton Convergence Tolerance", 1.0e-12 );
+    parameters->set<double>( "Newton Convergence Tolerance", 1.0e-9 );
 
     // Linear solver parameters
     parameters->set<int>( "GMRES Maximum Iterations", 100 );

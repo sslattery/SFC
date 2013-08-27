@@ -53,7 +53,7 @@ namespace SimpleExample
 /*!
  * \brief Simple 1D parabolic equation model evaluator: 
  *
- *                        a * (du^2)(d^2x) + b * u - c = 0
+ *                        -a * (du^2)(d^2x) + b * u - c = 0
  */
 //---------------------------------------------------------------------------//
 class SimpleEvaluator : public SFC::ModelEvaluator
