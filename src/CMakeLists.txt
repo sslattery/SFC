@@ -25,7 +25,10 @@ APPEND_SET(HEADERS
   SFC_AveragePerturbation.hpp
   SFC_BasicLineSearch.hpp
   SFC_BasicPerturbation.hpp
+  SFC_ConstantForcingTerm.hpp
   SFC_DBC.hpp
+  SFC_ForcingTerm.hpp
+  SFC_ForcingTermFactory.hpp
   SFC_Globalization.hpp
   SFC_GlobalizationFactory.hpp
   SFC_JacobianOperator.hpp
@@ -39,7 +42,9 @@ APPEND_SET(SOURCES
   SFC_AveragePerturbation.cpp
   SFC_BasicLineSearch.cpp
   SFC_BasicPerturbation.cpp
+  SFC_ConstantForcingTerm.hpp
   SFC_DBC.cpp
+  SFC_ForcingTermFactory.cpp
   SFC_GlobalizationFactory.cpp
   SFC_JacobianOperator.cpp
   SFC_NonlinearProblem.cpp

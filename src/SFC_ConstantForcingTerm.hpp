@@ -32,19 +32,16 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_GlobalizationFactory.hpp
+ * \file   SFC_ConstantForcingTerm.hpp
  * \author Stuart Slattery
- * \brief  Factory for globalization techniques.
+ * \brief  Constant Newton forcing term.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_GLOBALIZATIONFACTORY_HPP
-#define SFC_GLOBALIZATIONFACTORY_HPP
+#ifndef SFC_CONSTANTFORCINGTERM_HPP
+#define SFC_CONSTANTFORCINGTERM_HPP
 
-#include <map>
-#include <string>
-
-#include "SFC_Globalization.hpp"
+#include "SFC_NonlinearProblem.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -53,43 +50,42 @@ namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Factory for globalization techniques.
+ * \brief Constant Newton forcing term.
  */
 //---------------------------------------------------------------------------//
-class GlobalizationFactory
+class ConstantForcingTerm : public ForcingTerm
 {
   public:
 
     //! Constructor.
-    GlobalizationFactory();
+    ConstantForcingTerm( const Teuchos::ParameterList& parameters );
 
     //! Destructor.
-    ~GlobalizationFactory()
+    ~ConstantForcingTerm()
     { /* ... */ }
 
-    // Creation method.
-    Teuchos::RCP<Globalization> 
-    create( const Teuchos::ParameterList& parameters );
+    //! Set the nonlinear problem.
+    void setNonlinearProblem( 
+        const Teuchos::RCP<NonlinearProblem>& nonlinear_problem )
+    { /* ... */ }
+
+    //! Given a nonlinear problem, compute a new forcing term.
+    double calculateConstantForcingTerm()
+    { return d_forcing_term; }
 
   private:
 
-    // Perturbation enum.
-    enum SFCGlobalizationType {
-        DEFAULT,
-        BASIC_LINE_SEARCH
-    };
-
-    // String name to enum/integer map.
-    std::map<std::string,int> d_name_map;
+    // Constant forcing term.
+    double d_forcing_term;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
-#endif // end SFC_GLOBALIZATIONFACTORY_HPP
+#endif // end SFC_CONSTANTFORCINGTERM_HPP
 
 //---------------------------------------------------------------------------//
-// end SFC_GlobalizationFactory.hpp
+// end SFC_ConstantForcingTerm.hpp
 //---------------------------------------------------------------------------//
 

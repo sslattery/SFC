@@ -32,64 +32,53 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_GlobalizationFactory.hpp
+ * \file   SFC_ForcingTerm.hpp
  * \author Stuart Slattery
- * \brief  Factory for globalization techniques.
+ * \brief  Interface definition for Newton forcing terms.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_GLOBALIZATIONFACTORY_HPP
-#define SFC_GLOBALIZATIONFACTORY_HPP
+#ifndef SFC_FORCINGTERM_HPP
+#define SFC_FORCINGTERM_HPP
 
-#include <map>
-#include <string>
-
-#include "SFC_Globalization.hpp"
+#include "SFC_NonlinearProblem.hpp"
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_ParameterList.hpp>
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Factory for globalization techniques.
+ * \brief Base class for Newton forcing terms
  */
 //---------------------------------------------------------------------------//
-class GlobalizationFactory
+class ForcingTerm
 {
   public:
 
     //! Constructor.
-    GlobalizationFactory();
-
-    //! Destructor.
-    ~GlobalizationFactory()
+    ForcingTerm()
     { /* ... */ }
 
-    // Creation method.
-    Teuchos::RCP<Globalization> 
-    create( const Teuchos::ParameterList& parameters );
+    //! Destructor.
+    virtual ~ForcingTerm()
+    { /* ... */ }
 
-  private:
+    //! Set the nonlinear problem.
+    virtual void setNonlinearProblem( 
+        const Teuchos::RCP<NonlinearProblem>& nonlinear_problem ) = 0;
 
-    // Perturbation enum.
-    enum SFCGlobalizationType {
-        DEFAULT,
-        BASIC_LINE_SEARCH
-    };
-
-    // String name to enum/integer map.
-    std::map<std::string,int> d_name_map;
+    //! Given a nonlinear problem, compute a new forcing term.
+    virtual double calculateForcingTerm() = 0;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
-#endif // end SFC_GLOBALIZATIONFACTORY_HPP
+#endif // end SFC_FORCINGTERM_HPP
 
 //---------------------------------------------------------------------------//
-// end SFC_GlobalizationFactory.hpp
+// end SFC_ForcingTerm.hpp
 //---------------------------------------------------------------------------//
 

@@ -43,8 +43,13 @@
 #include "SFC_JacobianOperator.hpp"
 #include "SFC_PerturbationParameterFactory.hpp"
 #include "SFC_GlobalizationFactory.hpp"
+#include "SFC_ForcingTermFactory.hpp"
 
 #include <Epetra_Vector.h>
+#include <Epetra_LinearProblem.h>
+#include <Epetra_Operator.h>
+
+#include <AztecOO.h>
 
 namespace SFC
 {
@@ -68,7 +73,38 @@ NewtonSolver::NewtonSolver(
  */
 void NewtonSolver::solve()
 {
+    GlobalizationFactory globalization_factory;
+    Teuchos::RCP<Globalization> globalization = 
+        globalization_factory.create( *d_parameters );
+    globalization->setNonlinearProblem( d_nonlinear_problem );
 
+    ForcingTermFactory forcing_term_factory;
+    Teuchos::RCP<ForcingTerm> forcing_term = 
+        forcing_term_factory.create( *d_parameters );
+    forcing_term->setNonlinearProblem( d_nonlinear_problem );
+
+    PerturbationParameterFactory perturbation_factory;
+    Teuchos::RCP<PerturbationParameter> perturbation =
+        perturbation_factory.create( *d_parameters );
+
+    Teuchos::RCP<JacobianOperator> jacobian = Teuchos::rcp(
+        new JacobianOperator(d_nonlinear_problem, perturbation) );
+
+    Teuchos::RCP<Epetra_Operator> epetra_jacobian = jacobian;
+    Teuchos::RCP<Epetra_Vector> newton_update = Teuchos::rcp(
+        new Epetra_Vector(d_nonlinear_problem->getU()->Map()) );
+    Teuchos::RCP<Epetra_Vector> newton_rhs = Teuchos::rcp(
+        new Epetra_Vector(d_nonlinear_problem->getU()->Map()) );
+    Epetra_LinearProblem linear_problem( epetra_jacobian.getRawPtr(),
+                                         newton_update.getRawPtr(),
+                                         newton_rhs.getRawPtr() );
+
+    int aztec_error = 0;
+    AztecOO linear_solver( linear_problem );
+    aztec_error = solver.SetAztecOption( AZ_solver, AZ_gmres );
+    SFC_CHECK( 0 == aztec_error );
+
+    int max_newton_iters = d_parameters->get( "Newton Maximum Iterations" );
 }
 
 //---------------------------------------------------------------------------//

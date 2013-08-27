@@ -32,64 +32,37 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_GlobalizationFactory.hpp
+ * \file   SFC_ConstantForcingTerm.cpp
  * \author Stuart Slattery
- * \brief  Factory for globalization techniques.
+ * \brief  Constant Newton forcing term.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_GLOBALIZATIONFACTORY_HPP
-#define SFC_GLOBALIZATIONFACTORY_HPP
-
-#include <map>
-#include <string>
-
-#include "SFC_Globalization.hpp"
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ParameterList.hpp>
+#include "SFC_ConstantForcingTerm.hpp"
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Factory for globalization techniques.
+ * \brief Constructor.
  */
-//---------------------------------------------------------------------------//
-class GlobalizationFactory
+ConstantForcingTerm::ConstantForcingTerm( 
+    const Teuchos::ParameterList& parameters )
+    : d_forcing_term( 1.0e-4 )
 {
-  public:
+    if ( parameters.isParameter("Constant Forcing Term") )
+    {
+        d_forcing_term = parameters.get( "Constant Forcing Term" );
+    }
 
-    //! Constructor.
-    GlobalizationFactory();
-
-    //! Destructor.
-    ~GlobalizationFactory()
-    { /* ... */ }
-
-    // Creation method.
-    Teuchos::RCP<Globalization> 
-    create( const Teuchos::ParameterList& parameters );
-
-  private:
-
-    // Perturbation enum.
-    enum SFCGlobalizationType {
-        DEFAULT,
-        BASIC_LINE_SEARCH
-    };
-
-    // String name to enum/integer map.
-    std::map<std::string,int> d_name_map;
-};
+    MCLS_ENSURE( 0.0 < d_forcing_term );
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
-#endif // end SFC_GLOBALIZATIONFACTORY_HPP
-
 //---------------------------------------------------------------------------//
-// end SFC_GlobalizationFactory.hpp
+// end SFC_ConstantForcingTerm.cpp
 //---------------------------------------------------------------------------//
 

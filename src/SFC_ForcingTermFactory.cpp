@@ -32,64 +32,65 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_GlobalizationFactory.hpp
+ * \file   SFC_ForcingTermFactory.cpp
  * \author Stuart Slattery
- * \brief  Factory for globalization techniques.
+ * \brief  Factory for Jacobian-free perturbation parameters.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_GLOBALIZATIONFACTORY_HPP
-#define SFC_GLOBALIZATIONFACTORY_HPP
-
-#include <map>
-#include <string>
-
-#include "SFC_Globalization.hpp"
-
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ParameterList.hpp>
+#include "SFC_DBC.hpp"
+#include "SFC_ForcingTermFactory.hpp"
+#include "SFC_ConstantForcingTerm.hpp"
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Factory for globalization techniques.
+ * \brief Constructor.
  */
-//---------------------------------------------------------------------------//
-class GlobalizationFactory
+ForcingTermFactory::ForcingTermFactory()
 {
-  public:
+    d_name_map["Constant"] = CONSTANT;
+}
 
-    //! Constructor.
-    GlobalizationFactory();
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Creation method.
+ */
+Teuchos::RCP<ForcingTerm> 
+ForcingTermFactory::create( const Teuchos::ParameterList& parameters )
+{
+    std::string name = "Constant";
+    if ( parameters.isParameter("Forcing Term Type") )
+    {
+        name = parameters.get( "Forcing Term Type" );
+    }
 
-    //! Destructor.
-    ~GlobalizationFactory()
-    { /* ... */ }
+    Teuchos::RCP<ForcingTerm> forcing_term;
 
-    // Creation method.
-    Teuchos::RCP<Globalization> 
-    create( const Teuchos::ParameterList& parameters );
+    std::map<std::string,int>::const_iterator id = d_name_map.find( name );
+    SFC_CHECK( id != d_name_map.end() );
 
-  private:
+    switch( id->second )
+    {
+        case CONSTANT
+            forcing_term = Teuchos::rcp( new ConstantForcingTerm() );
+            break
 
-    // Perturbation enum.
-    enum SFCGlobalizationType {
-        DEFAULT,
-        BASIC_LINE_SEARCH
-    };
+        default:
+            forcing_term = Teuchos::rcp( new ConstantForcingTerm() );
+            break;
+    }
 
-    // String name to enum/integer map.
-    std::map<std::string,int> d_name_map;
-};
+    SFC_ENSURE( Teuchos::nonnull(forcing_term) );
+    return forcing_term;
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
-#endif // end SFC_GLOBALIZATIONFACTORY_HPP
-
 //---------------------------------------------------------------------------//
-// end SFC_GlobalizationFactory.hpp
+// end SFC_ForcingTermFactory.hpp
 //---------------------------------------------------------------------------//
 

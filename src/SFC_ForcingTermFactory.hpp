@@ -32,19 +32,19 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_GlobalizationFactory.hpp
+ * \file   SFC_ForcingTermFactory.hpp
  * \author Stuart Slattery
- * \brief  Factory for globalization techniques.
+ * \brief  Factory for forcing terms.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_GLOBALIZATIONFACTORY_HPP
-#define SFC_GLOBALIZATIONFACTORY_HPP
+#ifndef SFC_FORCINGTERMFACTORY_HPP
+#define SFC_FORCINGTERMFACTORY_HPP
 
 #include <map>
 #include <string>
 
-#include "SFC_Globalization.hpp"
+#include "SFC_ForcingTerm.hpp"
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -56,27 +56,26 @@ namespace SFC
  * \brief Factory for globalization techniques.
  */
 //---------------------------------------------------------------------------//
-class GlobalizationFactory
+class ForcingTermFactory
 {
   public:
 
     //! Constructor.
-    GlobalizationFactory();
+    ForcingTermFactory();
 
     //! Destructor.
-    ~GlobalizationFactory()
+    ~ForcingTermFactory()
     { /* ... */ }
 
     // Creation method.
-    Teuchos::RCP<Globalization> 
+    Teuchos::RCP<ForcingTerm> 
     create( const Teuchos::ParameterList& parameters );
 
   private:
 
     // Perturbation enum.
-    enum SFCGlobalizationType {
-        DEFAULT,
-        BASIC_LINE_SEARCH
+    enum SFCForcingTermType {
+        CONSTANT
     };
 
     // String name to enum/integer map.
@@ -87,9 +86,9 @@ class GlobalizationFactory
 
 } // end namespace SFC
 
-#endif // end SFC_GLOBALIZATIONFACTORY_HPP
+#endif // end SFC_FORCINGTERMFACTORY_HPP
 
 //---------------------------------------------------------------------------//
-// end SFC_GlobalizationFactory.hpp
+// end SFC_ForcingTermFactory.hpp
 //---------------------------------------------------------------------------//
 
