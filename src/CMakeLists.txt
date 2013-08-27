@@ -29,6 +29,7 @@ APPEND_SET(HEADERS
   SFC_ModelEvaluator.hpp
   SFC_NonlinearProblem.hpp
   SFC_PerturbationParameter.hpp
+  SFC_PerturbationParameterFactory.hpp
   ) 
 
 APPEND_SET(SOURCES
@@ -37,6 +38,7 @@ APPEND_SET(SOURCES
   SFC_DBC.cpp
   SFC_JacobianOperator.cpp
   SFC_NonlinearProblem.cpp
+  SFC_PerturbationParameterFactory.cpp
   )
 
 #

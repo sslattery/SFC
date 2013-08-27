@@ -32,53 +32,67 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_PerturbationParameter.hpp
+ * \file   SFC_PerturbationParameterFactory.cpp
  * \author Stuart Slattery
- * \brief  Interface definition for Jacobian-free perturbation parameters.
+ * \brief  Factory for Jacobian-free perturbation parameters.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_PERTURBATIONPARAMETER_HPP
-#define SFC_PERTURBATIONPARAMETER_HPP
-
-#include <Teuchos_RCP.hpp>
-
-#include <Epetra_Vector.h>
+#include "SFC_DBC.hpp"
+#include "SFC_PerturbationParameterFactory.hpp"
+#include "SFC_BasicPerturbation.hpp"
+#include "SFC_AveragePerturbation.hpp"
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Base class for Jacobian-free perturbation parameters.
+ * \brief Constructor.
  */
-//---------------------------------------------------------------------------//
-class PerturbationParameter
+PerturbationParameterFactory::PerturbationParameterFactory()
 {
-  public:
+    d_name_map["Basic"] = BASIC;
+    d_name_map["Average"] = AVERAGE;
+}
 
-    //! Constructor.
-    PerturbationParameter()
-    { /* ... */ }
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Creation method.
+ */
+Teuchos::RCP<PerturbationParameter> 
+PerturbationParameterFactory::create( const Teuchos::ParameterList& parameters )
+{
+    std::string name = parameters.get( "Pertubation Type" );
 
-    //! Destructor.
-    virtual ~PerturbationParameter()
-    { /* ... */ }
+    Teuchos::RCP<PerturbationParameter> perturbation;
 
-    //! Given a the nonlinear solution and the vector on which the Jacobian is
-    //! acting, generate a perturbation parameter for the Jacobian-free
-    //! approximation.
-    virtual double calculatePerturbation( 
-        const Teuchos::RCP<Epetra_Vector>& u,
-        const Teuchos::RCP<Epetra_Vector>& v ) = 0;
-};
+    std::map<std::string,int>::const_iterator id = d_name_map.find( name );
+    SFC_CHECK( id != d_name_map.end() );
+
+    switch( id->second )
+    {
+        case BASIC:
+            perturbation = Teuchos::rcp( new BasicPerturbation() );
+            break;
+
+        case AVERAGE:
+            perturbation = Teuchos::rcp( new AveragePerturbation() );
+            break;
+
+        default:
+            throw Assertion( "Pertubation type not supported!" );
+            break
+    }
+
+    SFC_ENSURE( Teuchos::nonnull(perturbation) );
+    return perturbation;
+}
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
-#endif // end SFC_PERTURBATIONPARAMETER_HPP
-
 //---------------------------------------------------------------------------//
-// end SFC_PerturbationParameter.hpp
+// end SFC_PerturbationParameterFactory.hpp
 //---------------------------------------------------------------------------//
 

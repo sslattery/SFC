@@ -32,53 +32,62 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   SFC_PerturbationParameter.hpp
+ * \file   SFC_PerturbationParameterFactory.hpp
  * \author Stuart Slattery
- * \brief  Interface definition for Jacobian-free perturbation parameters.
+ * \brief  Factory for Jacobian-free perturbation parameters.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef SFC_PERTURBATIONPARAMETER_HPP
-#define SFC_PERTURBATIONPARAMETER_HPP
+#ifndef SFC_PERTURBATIONPARAMETERFACTORY_HPP
+#define SFC_PERTURBATIONPARAMETERFACTORY_HPP
+
+#include <map>
+#include <string>
 
 #include <Teuchos_RCP.hpp>
-
-#include <Epetra_Vector.h>
+#include <Teuchos_ParameterList.hpp>
 
 namespace SFC
 {
 //---------------------------------------------------------------------------//
 /*!
- * \brief Base class for Jacobian-free perturbation parameters.
+ * \brief Factory for Jacobian-free perturbation parameters.
  */
 //---------------------------------------------------------------------------//
-class PerturbationParameter
+class PerturbationParameterFactory
 {
   public:
 
     //! Constructor.
-    PerturbationParameter()
-    { /* ... */ }
+    PerturbationParameterFactory();
 
     //! Destructor.
-    virtual ~PerturbationParameter()
+    ~PerturbationParameterFactory()
     { /* ... */ }
 
-    //! Given a the nonlinear solution and the vector on which the Jacobian is
-    //! acting, generate a perturbation parameter for the Jacobian-free
-    //! approximation.
-    virtual double calculatePerturbation( 
-        const Teuchos::RCP<Epetra_Vector>& u,
-        const Teuchos::RCP<Epetra_Vector>& v ) = 0;
+    // Creation method.
+    Teuchos::RCP<PerturbationParameter> 
+    create( const Teuchos::ParameterList& parameters );
+
+  private:
+
+    // Perturbation enum.
+    enum SFCPerturbationType {
+        BASIC,
+        AVERAGE
+    };
+
+    // String name to enum/integer map.
+    std::map<std::string,int> d_name_map;
 };
 
 //---------------------------------------------------------------------------//
 
 } // end namespace SFC
 
-#endif // end SFC_PERTURBATIONPARAMETER_HPP
+#endif // end SFC_PERTURBATIONPARAMETERFACTORY_HPP
 
 //---------------------------------------------------------------------------//
-// end SFC_PerturbationParameter.hpp
+// end SFC_PerturbationParameterFactory.hpp
 //---------------------------------------------------------------------------//
 
