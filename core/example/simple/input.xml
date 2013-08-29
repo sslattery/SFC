@@ -1,0 +1,13 @@
+<ParameterList name="SFC">
+  <Parameter name="Problem Size" type="int" value="100"/>
+  <Parameter name="Model a" type="double" value="1.0"/>
+  <Parameter name="Model b" type="double" value="0.5"/>
+  <Parameter name="Model c" type="double" value="1.0"/>
+  <Parameter name="Newton Maximum Iterations" type="int" value="1000"/>
+  <Parameter name="Newton Convergence Tolerance" type="double" value="1.0e-4"/>
+  <Parameter name="GMRES Maximum Iterations" type="int" value="10000"/>
+  <Parameter name="Forcing Term Type" type="string" value="Constant"/>
+  <Parameter name="Constant Forcing Term" type="double" value="1.0e-6"/>
+  <Parameter name="Globalization Type" type="string" value="None"/>
+  <Parameter name="Perturbation Type" type="string" value="Basic"/>
+</ParameterList>

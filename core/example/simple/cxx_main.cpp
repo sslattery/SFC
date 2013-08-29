@@ -7,6 +7,9 @@
 //---------------------------------------------------------------------------//
 
 #include <iostream>
+#include <iomanip>
+#include <cstdlib>
+#include <sstream>
 #include <string>
 
 #include "SimpleEvaluator.hpp"
@@ -17,6 +20,8 @@
 
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
+#include <Teuchos_CommandLineProcessor.hpp>
+#include <Teuchos_XMLParameterListCoreHelpers.hpp>
 #include <Teuchos_ArrayView.hpp>
 
 #include <Epetra_Comm.h>
@@ -42,49 +47,49 @@ int main(int argc, char* argv[])
     Epetra_SerialComm Comm;
 #endif
 
+    // Read in command line options.
+    std::string xml_input_filename;
+    Teuchos::CommandLineProcessor clp(false);
+    clp.setOption( "i",
+		   &xml_input_filename,
+		   "The XML file to read into a parameter list" );
+    clp.parse(argc,argv);
+
+    // Build the parameter list from the xml input.
+    Teuchos::RCP<Teuchos::ParameterList> plist =
+	Teuchos::rcp( new Teuchos::ParameterList() );
+    Teuchos::updateParametersFromXmlFile(
+	xml_input_filename, Teuchos::inoutArg(*plist) );
+
     // Epetra Setup.
-    int problem_size = 100;
+    int problem_size = plist->get<int>( "Problem Size" );
     Epetra_Map map( problem_size, 0, comm );
     Teuchos::RCP<Epetra_Vector> u = Teuchos::rcp( new Epetra_Vector(map) );
     u->PutScalar( 1.0 );
 
     // Model Setup.
-    double a = 1.0;
-    double b = 1.0;
-    double c = 0.5;
+    double a = plist->get<double>( "Model a" );
+    double b = plist->get<double>( "Model b" );
+    double c = plist->get<double>( "Model c" );
     Teuchos::RCP<SFC::ModelEvaluator> model_evaluator =
-	       Teuchos::rcp( new SimpleExample::SimpleEvaluator(a,b,c) );
+	Teuchos::rcp( new SimpleExample::SimpleEvaluator(a,b,c) );
 
     // Nonlinear Problem Setup.
     Teuchos::RCP<SFC::NonlinearProblem> nonlinear_problem = Teuchos::rcp( 
         new SFC::NonlinearProblem(model_evaluator, u) );
 
-    // Nonlinear Solver Parameters
-    Teuchos::RCP<Teuchos::ParameterList> parameters = Teuchos::parameterList();
-    parameters->set<int>( "Newton Maximum Iterations", 100 );
-    parameters->set<double>( "Newton Convergence Tolerance", 1.0e-9 );
-
-    // Linear solver parameters
-    parameters->set<int>( "GMRES Maximum Iterations", 100 );
-
-    // Forcing term parameters
-    parameters->set<std::string>( "Forcing Term Type", "Constant" );
-    parameters->set<double>( "Constant Forcing Term", 1.0e-4 );
-
-    // Globalization parameters
-    parameters->set<std::string>( "Globalization Type", "None" );
-
-    // Perturbation parameters
-    parameters->set<std::string>( "Perturbation Type", "Basic" );
-
     // Build the Newton solver and solve the nonlinear problem.
-    SFC::NewtonSolver nonlinear_solver( nonlinear_problem, parameters );
+    SFC::NewtonSolver nonlinear_solver( nonlinear_problem, plist );
     nonlinear_solver.solve();
 
-    // Output the results.
-    double* u_ptr;
-    u->ExtractView( &u_ptr );
-    std::cout << Teuchos::ArrayView<double>( u_ptr, problem_size ) << std::endl;
+    // Output the results to a file.
+    std::ofstream ofile;
+    ofile.open( "simple_example.dat" );
+    for ( int i = 0; i < problem_size; ++i )
+    {
+	ofile << std::setprecision(10) << (*u)[i] << std::endl;
+    }
+    ofile.close();
 }
 
 
