@@ -28,6 +28,7 @@ APPEND_SET(HEADERS
   SFC_ConstantForcingTerm.hpp
   SFC_DBC.hpp
   SFC_DefaultGlobalization.hpp
+  SFC_DiagonalPreconditioner.hpp
   SFC_ForcingTerm.hpp
   SFC_ForcingTermFactory.hpp
   SFC_Globalization.hpp
@@ -47,6 +48,7 @@ APPEND_SET(SOURCES
   SFC_ConstantForcingTerm.cpp
   SFC_DBC.cpp
   SFC_DefaultGlobalization.cpp
+  SFC_DiagonalPreconditioner.cpp
   SFC_ForcingTermFactory.cpp
   SFC_GlobalizationFactory.cpp
   SFC_JacobianOperator.cpp

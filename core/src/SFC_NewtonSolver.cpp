@@ -95,16 +95,15 @@ void NewtonSolver::solve()
         perturbation_factory.create( *d_parameters );
 
     // Build the Jacobian.
-    Teuchos::RCP<JacobianOperator> jacobian = Teuchos::rcp(
+    Teuchos::RCP<Epetra_Operator> jacobian = Teuchos::rcp(
         new JacobianOperator(d_nonlinear_problem, perturbation) );
 
     // Build the linear model.
-    Teuchos::RCP<Epetra_Operator> epetra_jacobian = jacobian;
     Teuchos::RCP<Epetra_Vector> newton_update = Teuchos::rcp(
         new Epetra_Vector(d_nonlinear_problem->getU()->Map()) );
     Teuchos::RCP<Epetra_Vector> newton_rhs = Teuchos::rcp(
         new Epetra_Vector(d_nonlinear_problem->getU()->Map()) );
-    Epetra_LinearProblem linear_problem( epetra_jacobian.getRawPtr(),
+    Epetra_LinearProblem linear_problem( jacobian.getRawPtr(),
                                          newton_update.getRawPtr(),
                                          newton_rhs.getRawPtr() );
 
