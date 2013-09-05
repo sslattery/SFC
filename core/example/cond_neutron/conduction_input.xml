@@ -1,7 +1,7 @@
 <ParameterList name="SFC">
   <Parameter name="Problem Size" type="int" value="100"/>
   <Parameter name="Left BC" type="double" value="100.0"/>
-  <Parameter name="Right BC" type="double" value="300.0"/>
+  <Parameter name="Right BC" type="double" value="10000.0"/>
   <Parameter name="Thermal Source" type="double" value="0.0"/>
   <Parameter name="Newton Maximum Iterations" type="int" value="1000"/>
   <Parameter name="Newton Convergence Tolerance" type="double" value="1.0e-4"/>

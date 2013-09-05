@@ -57,6 +57,8 @@ ConductionEvaluator::ConductionEvaluator()
 /*!
  * \brief Given a vector, evaluate the model and generate a nonlinear
  * residual.
+ *
+ * Use a diagonal scaled form.
  */
 void ConductionEvaluator::evaluate( const Teuchos::RCP<Epetra_Vector>& u,
                                 Teuchos::RCP<Epetra_Vector>& F )
@@ -67,8 +69,9 @@ void ConductionEvaluator::evaluate( const Teuchos::RCP<Epetra_Vector>& u,
     // Central points.
     for ( int i = 1; i < u->MyLength()-1; ++i )
     {
-        (*F)[i] = - computeK((*u)[i]) * ( (*u)[i+1] - 2*(*u)[i] + (*u)[i-1] ) 
-		  - (*d_q)[i];
+        (*F)[i] = (*u)[i] + 
+		  ( (*d_q)[i] / computeK((*u)[i]) - (*u)[i+1] - (*u)[i-1] ) 
+		  / 2.0;
     }
 
     // Boundary points - Dirichlet conditions.
